@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -42,6 +42,40 @@ interface MapProps {
   className?: string;
 }
 
+// Helper components to avoid context issues
+const AmbulanceMarker: React.FC<{ position: [number, number] }> = ({ position }) => (
+  <Marker position={position} icon={ambulanceIcon}>
+    <Popup>
+      <div className="text-center">
+        <strong>Ambulance</strong>
+        <br />
+        Current Location
+      </div>
+    </Popup>
+  </Marker>
+);
+
+const HospitalMarker: React.FC<{ position: [number, number] }> = ({ position }) => (
+  <Marker position={position} icon={hospitalIcon}>
+    <Popup>
+      <div className="text-center">
+        <strong>Hospital</strong>
+        <br />
+        Destination
+      </div>
+    </Popup>
+  </Marker>
+);
+
+const RoutePolyline: React.FC<{ positions: [number, number][] }> = ({ positions }) => (
+  <Polyline
+    positions={positions}
+    color="#dc2626"
+    weight={5}
+    opacity={0.8}
+  />
+);
+
 const Map: React.FC<MapProps> = ({ 
   route, 
   ambulanceLocation, 
@@ -57,6 +91,42 @@ const Map: React.FC<MapProps> = ({
   // Convert route coordinates from [lng, lat] to [lat, lng] for Leaflet
   const routePositions = route?.route.map(coord => [coord[1], coord[0]] as [number, number]) || [];
 
+  // Prepare children array to avoid conditional rendering issues
+  const mapChildren = [
+    <TileLayer
+      key="tile-layer"
+      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    />
+  ];
+
+  if (ambulanceLocation) {
+    mapChildren.push(
+      <AmbulanceMarker 
+        key="ambulance-marker"
+        position={[ambulanceLocation[1], ambulanceLocation[0]]} 
+      />
+    );
+  }
+
+  if (hospitalLocation) {
+    mapChildren.push(
+      <HospitalMarker 
+        key="hospital-marker"
+        position={[hospitalLocation[1], hospitalLocation[0]]} 
+      />
+    );
+  }
+
+  if (routePositions.length > 0) {
+    mapChildren.push(
+      <RoutePolyline 
+        key="route-polyline"
+        positions={routePositions}
+      />
+    );
+  }
+
   return (
     <div className={className}>
       <MapContainer
@@ -65,52 +135,7 @@ const Map: React.FC<MapProps> = ({
         style={{ height: '100%', width: '100%' }}
         className="rounded-lg"
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        
-        {/* Ambulance marker */}
-        {ambulanceLocation && (
-          <Marker 
-            position={[ambulanceLocation[1], ambulanceLocation[0]]} 
-            icon={ambulanceIcon}
-          >
-            <Popup>
-              <div className="text-center">
-                <strong>Ambulance</strong>
-                <br />
-                Current Location
-              </div>
-            </Popup>
-          </Marker>
-        )}
-        
-        {/* Hospital marker */}
-        {hospitalLocation && (
-          <Marker 
-            position={[hospitalLocation[1], hospitalLocation[0]]} 
-            icon={hospitalIcon}
-          >
-            <Popup>
-              <div className="text-center">
-                <strong>Hospital</strong>
-                <br />
-                Destination
-              </div>
-            </Popup>
-          </Marker>
-        )}
-        
-        {/* Route polyline */}
-        {routePositions.length > 0 && (
-          <Polyline
-            positions={routePositions}
-            color="#dc2626"
-            weight={5}
-            opacity={0.8}
-          />
-        )}
+        {mapChildren}
       </MapContainer>
     </div>
   );
