@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   Heart, 
   Ambulance, 
@@ -14,10 +15,12 @@ import {
   Bed,
   Activity,
   Navigation,
-  Phone
+  Phone,
+  Map as MapIcon
 } from 'lucide-react';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import Map from '@/components/Map';
 
 interface HospitalDashboardProps {
   user: User;
@@ -27,6 +30,7 @@ interface HospitalDashboardProps {
 interface IncomingAmbulance {
   id: string;
   driverName: string;
+  driverPhone: string;
   ambulanceNumber: string;
   currentLocation: [number, number];
   eta: Date;
@@ -38,6 +42,7 @@ interface IncomingAmbulance {
 
 const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout }) => {
   const [incomingAmbulances, setIncomingAmbulances] = useState<IncomingAmbulance[]>([]);
+  const [selectedAmbulance, setSelectedAmbulance] = useState<IncomingAmbulance | null>(null);
   const [hospitalStats, setHospitalStats] = useState({
     totalBeds: 120,
     occupiedBeds: 85,
@@ -48,12 +53,16 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
   });
   const { toast } = useToast();
 
+  // Hospital location (example coordinates)
+  const hospitalLocation: [number, number] = [-74.0050, 40.7120];
+
   // Simulate incoming ambulances
   useEffect(() => {
     const mockAmbulances: IncomingAmbulance[] = [
       {
         id: '1',
         driverName: 'John Driver',
+        driverPhone: '+1 (555) 123-4567',
         ambulanceNumber: 'EMT-001',
         currentLocation: [-74.0060, 40.7128],
         eta: new Date(Date.now() + 8 * 60000),
@@ -65,6 +74,7 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
       {
         id: '2',
         driverName: 'Sarah Wilson',
+        driverPhone: '+1 (555) 987-6543',
         ambulanceNumber: 'EMT-015',
         currentLocation: [-74.0160, 40.7228],
         eta: new Date(Date.now() + 15 * 60000),
@@ -125,6 +135,18 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
   const formatTimeRemaining = (eta: Date) => {
     const minutes = Math.ceil((eta.getTime() - Date.now()) / 60000);
     return minutes > 0 ? `${minutes} min` : 'Arriving now';
+  };
+
+  const handleContactDriver = (ambulance: IncomingAmbulance) => {
+    toast({
+      title: "Driver Contact Information",
+      description: `${ambulance.driverName}: ${ambulance.driverPhone}`,
+      duration: 10000,
+    });
+  };
+
+  const handleTrackLocation = (ambulance: IncomingAmbulance) => {
+    setSelectedAmbulance(ambulance);
   };
 
   return (
@@ -285,14 +307,62 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
                     )}
 
                     <div className="flex gap-2">
-                      <Button variant="medical" size="sm">
+                      <Button 
+                        variant="medical" 
+                        size="sm"
+                        onClick={() => handleContactDriver(ambulance)}
+                      >
                         <Phone className="w-4 h-4 mr-2" />
                         Contact Driver
                       </Button>
-                      <Button variant="outline" size="sm">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        Track Location
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleTrackLocation(ambulance)}
+                          >
+                            <MapIcon className="w-4 h-4 mr-2" />
+                            Track Location
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl h-[80vh]">
+                          <DialogHeader>
+                            <DialogTitle>
+                              Tracking {ambulance.ambulanceNumber} - {ambulance.driverName}
+                            </DialogTitle>
+                          </DialogHeader>
+                          <div className="flex-1 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                              <div className="flex items-center gap-2">
+                                <Phone className="w-4 h-4 text-muted-foreground" />
+                                <span>{ambulance.driverPhone}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-muted-foreground" />
+                                <span>ETA: {formatTimeRemaining(ambulance.eta)}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-muted-foreground" />
+                                <span>Distance: {ambulance.distance.toFixed(1)} km</span>
+                              </div>
+                            </div>
+                            <div className="h-96 w-full">
+                              <Map
+                                ambulanceLocation={ambulance.currentLocation}
+                                hospitalLocation={hospitalLocation}
+                                className="h-full w-full rounded-lg border"
+                              />
+                            </div>
+                            {ambulance.patientInfo && (
+                              <div className="border rounded-lg p-3 bg-muted/50">
+                                <h4 className="font-medium text-sm mb-1">Patient Information:</h4>
+                                <p className="text-sm text-muted-foreground">{ambulance.patientInfo}</p>
+                              </div>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 ))}
