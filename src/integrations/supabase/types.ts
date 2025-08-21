@@ -14,7 +14,663 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ambulance_coordination: {
+        Row: {
+          coordination_type: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          primary_ambulance_id: string
+          status: string | null
+          supporting_ambulance_ids: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          coordination_type: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          primary_ambulance_id: string
+          status?: string | null
+          supporting_ambulance_ids?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          coordination_type?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          primary_ambulance_id?: string
+          status?: string | null
+          supporting_ambulance_ids?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      arrival_notifications: {
+        Row: {
+          actual_arrival: string | null
+          ambulance_id: string
+          created_at: string | null
+          estimated_arrival: string
+          hospital_id: string
+          id: string
+          notification_sent_at: string | null
+          notification_status: string | null
+          trip_id: string
+        }
+        Insert: {
+          actual_arrival?: string | null
+          ambulance_id: string
+          created_at?: string | null
+          estimated_arrival: string
+          hospital_id: string
+          id?: string
+          notification_sent_at?: string | null
+          notification_status?: string | null
+          trip_id: string
+        }
+        Update: {
+          actual_arrival?: string | null
+          ambulance_id?: string
+          created_at?: string | null
+          estimated_arrival?: string
+          hospital_id?: string
+          id?: string
+          notification_sent_at?: string | null
+          notification_status?: string | null
+          trip_id?: string
+        }
+        Relationships: []
+      }
+      broadcasts: {
+        Row: {
+          broadcast_type: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          message: string
+          sender_id: string
+          target_audience: string[] | null
+          title: string
+        }
+        Insert: {
+          broadcast_type: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message: string
+          sender_id: string
+          target_audience?: string[] | null
+          title: string
+        }
+        Update: {
+          broadcast_type?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message?: string
+          sender_id?: string
+          target_audience?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
+      capacity_trends: {
+        Row: {
+          avg_wait_time_minutes: number | null
+          created_at: string | null
+          date: string
+          hospital_id: string
+          hour_of_day: number | null
+          id: string
+          incoming_ambulances: number | null
+          occupied_beds: number
+          total_capacity: number
+        }
+        Insert: {
+          avg_wait_time_minutes?: number | null
+          created_at?: string | null
+          date: string
+          hospital_id: string
+          hour_of_day?: number | null
+          id?: string
+          incoming_ambulances?: number | null
+          occupied_beds: number
+          total_capacity: number
+        }
+        Update: {
+          avg_wait_time_minutes?: number | null
+          created_at?: string | null
+          date?: string
+          hospital_id?: string
+          hour_of_day?: number | null
+          id?: string
+          incoming_ambulances?: number | null
+          occupied_beds?: number
+          total_capacity?: number
+        }
+        Relationships: []
+      }
+      driver_shifts: {
+        Row: {
+          ambulance_id: string | null
+          break_times: Json | null
+          created_at: string | null
+          driver_id: string
+          id: string
+          notes: string | null
+          shift_end: string
+          shift_start: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          ambulance_id?: string | null
+          break_times?: Json | null
+          created_at?: string | null
+          driver_id: string
+          id?: string
+          notes?: string | null
+          shift_end: string
+          shift_start: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          ambulance_id?: string | null
+          break_times?: Json | null
+          created_at?: string | null
+          driver_id?: string
+          id?: string
+          notes?: string | null
+          shift_end?: string
+          shift_start?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      emergency_contacts: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          is_primary: boolean | null
+          name: string
+          patient_id: string | null
+          phone_number: string
+          relationship: string
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          name: string
+          patient_id?: string | null
+          phone_number: string
+          relationship: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          name?: string
+          patient_id?: string | null
+          phone_number?: string
+          relationship?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergency_contacts_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hospital_staff_management: {
+        Row: {
+          availability_status: string | null
+          certifications: string[] | null
+          created_at: string | null
+          department: string
+          hospital_id: string
+          id: string
+          last_activity: string | null
+          position: string
+          shift_pattern: string | null
+          staff_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          availability_status?: string | null
+          certifications?: string[] | null
+          created_at?: string | null
+          department: string
+          hospital_id: string
+          id?: string
+          last_activity?: string | null
+          position: string
+          shift_pattern?: string | null
+          staff_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          availability_status?: string | null
+          certifications?: string[] | null
+          created_at?: string | null
+          department?: string
+          hospital_id?: string
+          id?: string
+          last_activity?: string | null
+          position?: string
+          shift_pattern?: string | null
+          staff_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      medical_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string | null
+          description: string
+          id: string
+          is_active: boolean | null
+          patient_id: string | null
+          severity: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string | null
+          description: string
+          id?: string
+          is_active?: boolean | null
+          patient_id?: string | null
+          severity: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          is_active?: boolean | null
+          patient_id?: string | null
+          severity?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_alerts_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medical_history: {
+        Row: {
+          allergies: string[] | null
+          condition_name: string
+          created_at: string | null
+          diagnosed_date: string | null
+          id: string
+          is_active: boolean | null
+          medications: string[] | null
+          notes: string | null
+          patient_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          allergies?: string[] | null
+          condition_name: string
+          created_at?: string | null
+          diagnosed_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          medications?: string[] | null
+          notes?: string | null
+          patient_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          allergies?: string[] | null
+          condition_name?: string
+          created_at?: string | null
+          diagnosed_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          medications?: string[] | null
+          notes?: string | null
+          patient_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_history_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          ambulance_id: string | null
+          created_at: string | null
+          hospital_id: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          notification_type: string
+          recipient_id: string
+          recipient_type: string
+          title: string
+          trip_id: string | null
+        }
+        Insert: {
+          ambulance_id?: string | null
+          created_at?: string | null
+          hospital_id?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          notification_type: string
+          recipient_id: string
+          recipient_type: string
+          title: string
+          trip_id?: string | null
+        }
+        Update: {
+          ambulance_id?: string | null
+          created_at?: string | null
+          hospital_id?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          notification_type?: string
+          recipient_id?: string
+          recipient_type?: string
+          title?: string
+          trip_id?: string | null
+        }
+        Relationships: []
+      }
+      patients: {
+        Row: {
+          address: string | null
+          blood_type: string | null
+          created_at: string | null
+          date_of_birth: string
+          first_name: string
+          gender: string | null
+          id: string
+          insurance_number: string | null
+          last_name: string
+          phone_number: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          blood_type?: string | null
+          created_at?: string | null
+          date_of_birth: string
+          first_name: string
+          gender?: string | null
+          id?: string
+          insurance_number?: string | null
+          last_name: string
+          phone_number?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          blood_type?: string | null
+          created_at?: string | null
+          date_of_birth?: string
+          first_name?: string
+          gender?: string | null
+          id?: string
+          insurance_number?: string | null
+          last_name?: string
+          phone_number?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      permissions: {
+        Row: {
+          actions: string[]
+          created_at: string | null
+          id: string
+          resource: string
+          role: string
+        }
+        Insert: {
+          actions: string[]
+          created_at?: string | null
+          id?: string
+          resource: string
+          role: string
+        }
+        Update: {
+          actions?: string[]
+          created_at?: string | null
+          id?: string
+          resource?: string
+          role?: string
+        }
+        Relationships: []
+      }
+      response_analytics: {
+        Row: {
+          ambulance_id: string
+          arrival_time: string | null
+          completion_time: string | null
+          created_at: string | null
+          dispatch_time: string
+          distance_km: number | null
+          efficiency_score: number | null
+          hospital_id: string
+          id: string
+          patient_outcome: string | null
+          response_time_minutes: number | null
+          trip_id: string
+        }
+        Insert: {
+          ambulance_id: string
+          arrival_time?: string | null
+          completion_time?: string | null
+          created_at?: string | null
+          dispatch_time: string
+          distance_km?: number | null
+          efficiency_score?: number | null
+          hospital_id: string
+          id?: string
+          patient_outcome?: string | null
+          response_time_minutes?: number | null
+          trip_id: string
+        }
+        Update: {
+          ambulance_id?: string
+          arrival_time?: string | null
+          completion_time?: string | null
+          created_at?: string | null
+          dispatch_time?: string
+          distance_km?: number | null
+          efficiency_score?: number | null
+          hospital_id?: string
+          id?: string
+          patient_outcome?: string | null
+          response_time_minutes?: number | null
+          trip_id?: string
+        }
+        Relationships: []
+      }
+      route_efficiency: {
+        Row: {
+          actual_time_minutes: number | null
+          created_at: string | null
+          date_recorded: string | null
+          distance_km: number
+          efficiency_rating: number | null
+          end_location: Json
+          estimated_time_minutes: number
+          id: string
+          route_id: string
+          start_location: Json
+          traffic_conditions: string[] | null
+        }
+        Insert: {
+          actual_time_minutes?: number | null
+          created_at?: string | null
+          date_recorded?: string | null
+          distance_km: number
+          efficiency_rating?: number | null
+          end_location: Json
+          estimated_time_minutes: number
+          id?: string
+          route_id: string
+          start_location: Json
+          traffic_conditions?: string[] | null
+        }
+        Update: {
+          actual_time_minutes?: number | null
+          created_at?: string | null
+          date_recorded?: string | null
+          distance_km?: number
+          efficiency_rating?: number | null
+          end_location?: Json
+          estimated_time_minutes?: number
+          id?: string
+          route_id?: string
+          start_location?: Json
+          traffic_conditions?: string[] | null
+        }
+        Relationships: []
+      }
+      status_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          location: Json | null
+          message: string
+          sender_id: string
+          status_type: string
+          trip_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          location?: Json | null
+          message: string
+          sender_id: string
+          status_type: string
+          trip_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          location?: Json | null
+          message?: string
+          sender_id?: string
+          status_type?: string
+          trip_id?: string | null
+        }
+        Relationships: []
+      }
+      traffic_data: {
+        Row: {
+          average_speed_kmh: number | null
+          coordinates: Json
+          delay_minutes: number | null
+          id: string
+          incident_type: string | null
+          is_active: boolean | null
+          last_updated: string | null
+          road_segment_id: string
+          traffic_level: string
+        }
+        Insert: {
+          average_speed_kmh?: number | null
+          coordinates: Json
+          delay_minutes?: number | null
+          id?: string
+          incident_type?: string | null
+          is_active?: boolean | null
+          last_updated?: string | null
+          road_segment_id: string
+          traffic_level: string
+        }
+        Update: {
+          average_speed_kmh?: number | null
+          coordinates?: Json
+          delay_minutes?: number | null
+          id?: string
+          incident_type?: string | null
+          is_active?: boolean | null
+          last_updated?: string | null
+          road_segment_id?: string
+          traffic_level?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          created_at: string | null
+          department: string | null
+          email: string
+          emergency_contact: string | null
+          first_name: string
+          id: string
+          is_active: boolean | null
+          last_name: string
+          license_number: string | null
+          phone_number: string | null
+          role: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          department?: string | null
+          email: string
+          emergency_contact?: string | null
+          first_name: string
+          id?: string
+          is_active?: boolean | null
+          last_name: string
+          license_number?: string | null
+          phone_number?: string | null
+          role: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          department?: string | null
+          email?: string
+          emergency_contact?: string | null
+          first_name?: string
+          id?: string
+          is_active?: boolean | null
+          last_name?: string
+          license_number?: string | null
+          phone_number?: string | null
+          role?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
