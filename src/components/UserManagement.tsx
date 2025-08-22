@@ -45,7 +45,7 @@ const UserManagement: React.FC = () => {
         .order('last_name');
       
       if (error) throw error;
-      setUsers(data || []);
+      setUsers((data || []) as UserProfile[]);
     } catch (error) {
       toast({
         title: "Error",
@@ -63,7 +63,7 @@ const UserManagement: React.FC = () => {
         .order('shift_start');
       
       if (error) throw error;
-      setShifts(data || []);
+      setShifts((data || []) as DriverShift[]);
     } catch (error) {
       console.error('Error fetching shifts:', error);
     }
@@ -77,7 +77,7 @@ const UserManagement: React.FC = () => {
         .order('position');
       
       if (error) throw error;
-      setHospitalStaff(data || []);
+      setHospitalStaff((data || []) as HospitalStaffManagement[]);
     } catch (error) {
       console.error('Error fetching hospital staff:', error);
     }
@@ -109,19 +109,24 @@ const UserManagement: React.FC = () => {
 
     try {
       const userData = {
-        ...newUser,
+        first_name: newUser.first_name!,
+        last_name: newUser.last_name!,
+        email: newUser.email!,
+        role: newUser.role!,
+        phone_number: newUser.phone_number,
+        department: newUser.department,
         user_id: `user_${Date.now()}`, // Generate a temporary user ID
       };
 
       const { data, error } = await supabase
         .from('user_profiles')
-        .insert([userData])
+        .insert(userData)
         .select()
         .single();
 
       if (error) throw error;
       
-      setUsers([...users, data]);
+      setUsers([...users, data as UserProfile]);
       setNewUser({});
       setShowNewUserDialog(false);
       toast({
@@ -148,15 +153,24 @@ const UserManagement: React.FC = () => {
     }
 
     try {
+      const shiftData = {
+        driver_id: newShift.driver_id!,
+        shift_start: newShift.shift_start!,
+        shift_end: newShift.shift_end!,
+        ambulance_id: newShift.ambulance_id,
+        status: 'scheduled' as const,
+        notes: newShift.notes,
+      };
+
       const { data, error } = await supabase
         .from('driver_shifts')
-        .insert([newShift])
+        .insert(shiftData)
         .select()
         .single();
 
       if (error) throw error;
       
-      setShifts([...shifts, data]);
+      setShifts([...shifts, data as DriverShift]);
       setNewShift({});
       setShowNewShiftDialog(false);
       toast({
