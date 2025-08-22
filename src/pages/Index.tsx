@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import LoginForm from '@/components/LoginForm';
-import DriverDashboard from '@/components/DriverDashboard';
-import HospitalDashboard from '@/components/HospitalDashboard';
+import MainNavigation from '@/components/MainNavigation';
 import { User } from '@/types';
 
 const Index = () => {
@@ -19,15 +18,7 @@ const Index = () => {
     return <LoginForm onLogin={handleLogin} />;
   }
 
-  if (currentUser.role === 'ambulance_driver') {
-    return <DriverDashboard user={currentUser} onLogout={handleLogout} />;
-  }
-
-  if (currentUser.role === 'hospital_staff') {
-    return <HospitalDashboard user={currentUser} onLogout={handleLogout} />;
-  }
-
-  return null;
+  return <MainNavigation user={currentUser} onLogout={handleLogout} />;
 };
 
 export default Index;
