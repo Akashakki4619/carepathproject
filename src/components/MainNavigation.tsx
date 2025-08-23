@@ -8,7 +8,8 @@ import PatientManagement from './PatientManagement';
 import CommunicationCenter from './CommunicationCenter';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import UserManagement from './UserManagement';
-import { Users, MessageSquare, BarChart3, Settings, Ambulance, Building2, User } from 'lucide-react';
+import { Users, MessageSquare, BarChart3, Settings, Ambulance, Building2, User, Activity } from 'lucide-react';
+import LiveTracking from './LiveTracking';
 
 interface MainNavigationProps {
   user: any;
@@ -44,6 +45,10 @@ const MainNavigation: React.FC<MainNavigationProps> = ({ user, onLogout }) => {
                 <Users className="w-4 h-4" />
                 <span>Users</span>
               </TabsTrigger>
+              <TabsTrigger value="tracking" className="flex items-center space-x-2">
+                <Activity className="w-4 h-4" />
+                <span>Live Tracking</span>
+              </TabsTrigger>
               <div className="ml-auto">
                 <Button variant="outline" onClick={onLogout}>
                   Logout
@@ -75,6 +80,10 @@ const MainNavigation: React.FC<MainNavigationProps> = ({ user, onLogout }) => {
 
         <TabsContent value="users" className="mt-0">
           <UserManagement />
+        </TabsContent>
+
+        <TabsContent value="tracking" className="mt-0">
+          <LiveTracking />
         </TabsContent>
       </Tabs>
     </div>
