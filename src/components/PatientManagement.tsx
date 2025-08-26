@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Patient, MedicalHistory, EmergencyContact, MedicalAlert } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { qosManager, Priority } from '@/services/QosManager';
 import { Search, Plus, AlertTriangle, Heart, Phone, Calendar as CalendarIcon, User } from 'lucide-react';
 
 interface PatientManagementProps {
@@ -222,9 +223,23 @@ const PatientManagement: React.FC<PatientManagementProps> = ({ onPatientSelect }
                   className={`p-4 border-b cursor-pointer hover:bg-accent ${
                     selectedPatient?.id === patient.id ? 'bg-accent' : ''
                   }`}
-                  onClick={() => {
+                  onClick={async () => {
                     setSelectedPatient(patient);
                     onPatientSelect?.(patient);
+                    
+                    // Send patient selection event via QoS (CRITICAL for emergency situations)
+                    await qosManager.sendPacket(
+                      'patient_mgmt_system',
+                      'patient_selection',
+                      'CRITICAL',
+                      {
+                        patient_id: patient.id,
+                        patient_name: `${patient.first_name} ${patient.last_name}`,
+                        selected_at: new Date().toISOString(),
+                        medical_alerts: medicalAlerts.filter(alert => alert.patient_id === patient.id)
+                      },
+                      'emergency_system'
+                    );
                   }}
                 >
                   <div className="flex items-center space-x-3">

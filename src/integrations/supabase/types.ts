@@ -470,6 +470,141 @@ export type Database = {
         }
         Relationships: []
       }
+      qos_analytics: {
+        Row: {
+          avg_latency_ms: number | null
+          avg_throughput_kbps: number | null
+          created_at: string
+          dropped_packets: number
+          id: string
+          packet_loss_rate: number
+          priority_level: string
+          successful_packets: number
+          timestamp: string
+          total_packets: number
+        }
+        Insert: {
+          avg_latency_ms?: number | null
+          avg_throughput_kbps?: number | null
+          created_at?: string
+          dropped_packets?: number
+          id?: string
+          packet_loss_rate?: number
+          priority_level: string
+          successful_packets?: number
+          timestamp?: string
+          total_packets?: number
+        }
+        Update: {
+          avg_latency_ms?: number | null
+          avg_throughput_kbps?: number | null
+          created_at?: string
+          dropped_packets?: number
+          id?: string
+          packet_loss_rate?: number
+          priority_level?: string
+          successful_packets?: number
+          timestamp?: string
+          total_packets?: number
+        }
+        Relationships: []
+      }
+      qos_link_metrics: {
+        Row: {
+          capacity_kbps: number
+          current_utilization: number
+          id: string
+          is_active: boolean
+          jitter_ms: number
+          last_updated: string
+          link_id: string
+          packet_loss_rate: number
+          receiver_location: Json | null
+          sender_location: Json
+        }
+        Insert: {
+          capacity_kbps?: number
+          current_utilization?: number
+          id?: string
+          is_active?: boolean
+          jitter_ms?: number
+          last_updated?: string
+          link_id: string
+          packet_loss_rate?: number
+          receiver_location?: Json | null
+          sender_location: Json
+        }
+        Update: {
+          capacity_kbps?: number
+          current_utilization?: number
+          id?: string
+          is_active?: boolean
+          jitter_ms?: number
+          last_updated?: string
+          link_id?: string
+          packet_loss_rate?: number
+          receiver_location?: Json | null
+          sender_location?: Json
+        }
+        Relationships: []
+      }
+      qos_transmissions: {
+        Row: {
+          ack_received: string | null
+          created_at: string
+          id: string
+          latency_ms: number | null
+          max_retries: number
+          packet_id: string
+          packet_type: string
+          payload: Json
+          priority: string
+          queue_time: string
+          receiver_id: string | null
+          retry_count: number
+          sender_id: string
+          status: string
+          transmission_end: string | null
+          transmission_start: string | null
+        }
+        Insert: {
+          ack_received?: string | null
+          created_at?: string
+          id?: string
+          latency_ms?: number | null
+          max_retries?: number
+          packet_id?: string
+          packet_type: string
+          payload: Json
+          priority: string
+          queue_time?: string
+          receiver_id?: string | null
+          retry_count?: number
+          sender_id: string
+          status?: string
+          transmission_end?: string | null
+          transmission_start?: string | null
+        }
+        Update: {
+          ack_received?: string | null
+          created_at?: string
+          id?: string
+          latency_ms?: number | null
+          max_retries?: number
+          packet_id?: string
+          packet_type?: string
+          payload?: Json
+          priority?: string
+          queue_time?: string
+          receiver_id?: string | null
+          retry_count?: number
+          sender_id?: string
+          status?: string
+          transmission_end?: string | null
+          transmission_start?: string | null
+        }
+        Relationships: []
+      }
       response_analytics: {
         Row: {
           ambulance_id: string

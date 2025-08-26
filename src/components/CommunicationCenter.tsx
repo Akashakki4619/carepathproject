@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { Notification, Broadcast, StatusMessage } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { qosManager, Priority } from '@/services/QosManager';
 import { Bell, Radio, MessageSquare, Send, AlertTriangle, Info, CheckCircle, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -136,6 +137,19 @@ const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
         target_audience: newBroadcast.target_audience || ['all']
       };
 
+      // Determine priority based on broadcast type
+      const priority: Priority = newBroadcast.broadcast_type === 'emergency' ? 'CRITICAL' : 
+                                newBroadcast.broadcast_type === 'alert' ? 'HIGH' : 'MEDIUM';
+
+      // Send via QoS manager
+      await qosManager.sendPacket(
+        currentUserId,
+        'broadcast_message',
+        priority,
+        broadcastData,
+        'all'
+      );
+
       const { error } = await supabase
         .from('broadcasts')
         .insert([broadcastData as any]);
@@ -146,7 +160,7 @@ const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
       setShowNewBroadcast(false);
       toast({
         title: "Success",
-        description: "Broadcast sent successfully"
+        description: `Broadcast sent via QoS (${priority} priority)`
       });
     } catch (error) {
       toast({
@@ -174,6 +188,19 @@ const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
         notification_type: newNotification.notification_type || 'info'
       };
 
+      // Determine priority based on notification type
+      const priority: Priority = newNotification.notification_type === 'emergency' ? 'CRITICAL' : 
+                                newNotification.notification_type === 'warning' ? 'HIGH' : 'MEDIUM';
+
+      // Send via QoS manager
+      await qosManager.sendPacket(
+        currentUserId,
+        'notification_message',
+        priority,
+        notificationData,
+        newNotification.recipient_id
+      );
+
       const { error } = await supabase
         .from('notifications')
         .insert([notificationData as any]);
@@ -184,7 +211,7 @@ const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
       setShowNewNotification(false);
       toast({
         title: "Success",
-        description: "Notification sent successfully"
+        description: `Notification sent via QoS (${priority} priority)`
       });
     } catch (error) {
       toast({
@@ -205,6 +232,15 @@ const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
         status_type: 'available' // Default status type
       };
 
+      // Send via QoS manager with LOW priority for status updates
+      await qosManager.sendPacket(
+        currentUserId,
+        'status_update',
+        'LOW',
+        statusData,
+        'all'
+      );
+
       const { error } = await supabase
         .from('status_messages')
         .insert([statusData]);
@@ -214,7 +250,7 @@ const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
       setNewStatus('');
       toast({
         title: "Status updated",
-        description: "Your status has been shared"
+        description: "Your status has been shared via QoS"
       });
     } catch (error) {
       toast({

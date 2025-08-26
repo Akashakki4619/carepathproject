@@ -21,6 +21,7 @@ import Map from '@/components/Map';
 import { User, Hospital as HospitalType, Trip, TrafficCondition, RouteOptimization } from '@/types';
 import { findOptimalRoute, simulateVANETCommunication } from '@/utils/routing';
 import { useToast } from '@/hooks/use-toast';
+import { qosManager, Priority } from '@/services/QosManager';
 
 interface DriverDashboardProps {
   user: User;
@@ -68,7 +69,7 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
 
   // Simulate real-time location updates
   useEffect(() => {
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       setCurrentLocation(prev => [
         prev[0] + (Math.random() - 0.5) * 0.001,
         prev[1] + (Math.random() - 0.5) * 0.001
@@ -87,12 +88,28 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
         last_updated: new Date()
       }));
       setTrafficConditions(newTrafficConditions);
+
+      // Send traffic updates via QoS with MEDIUM priority
+      if (newTrafficConditions.length > 0) {
+        await qosManager.sendPacket(
+          user.id,
+          'traffic_update',
+          'MEDIUM',
+          {
+            ambulance_id: user.ambulance_id,
+            location: currentLocation,
+            traffic_conditions: newTrafficConditions,
+            timestamp: new Date().toISOString()
+          },
+          'traffic_system'
+        );
+      }
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [currentLocation]);
+  }, [currentLocation, user.id, user.ambulance_id]);
 
-  const startTrip = () => {
+  const startTrip = async () => {
     if (!selectedHospital) {
       toast({
         title: "Error",
@@ -117,6 +134,22 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
       estimated_arrival: new Date(Date.now() + optimizedRoute.estimated_time * 60000),
       traffic_conditions: trafficConditions
     };
+
+    // Send trip start event via QoS with HIGH priority
+    await qosManager.sendPacket(
+      user.id,
+      'trip_start',
+      'HIGH',
+      {
+        trip_id: newTrip.id,
+        ambulance_id: user.ambulance_id,
+        hospital_id: selectedHospital,
+        hospital_name: hospital.name,
+        estimated_arrival: newTrip.estimated_arrival,
+        route_optimization: optimizedRoute
+      },
+      selectedHospital
+    );
 
     setCurrentTrip(newTrip);
     setRoute(optimizedRoute);

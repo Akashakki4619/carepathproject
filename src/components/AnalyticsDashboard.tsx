@@ -7,6 +7,7 @@ import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Cartesia
 import { supabase } from '@/integrations/supabase/client';
 import { ResponseAnalytics, CapacityTrend, RouteEfficiency } from '@/types';
 import { Clock, TrendingUp, MapPin, Users, Ambulance, Hospital, Activity } from 'lucide-react';
+import QosVisualization from '@/components/QosVisualization';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 
 const AnalyticsDashboard: React.FC = () => {
@@ -196,6 +197,7 @@ const AnalyticsDashboard: React.FC = () => {
           <TabsTrigger value="capacity">Hospital Capacity</TabsTrigger>
           <TabsTrigger value="routes">Route Efficiency</TabsTrigger>
           <TabsTrigger value="distribution">Trip Distribution</TabsTrigger>
+          <TabsTrigger value="qos">QoS Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="response" className="space-y-4">
@@ -438,6 +440,10 @@ const AnalyticsDashboard: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="qos" className="space-y-4">
+          <QosVisualization />
         </TabsContent>
       </Tabs>
     </div>
