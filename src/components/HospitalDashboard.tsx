@@ -21,6 +21,7 @@ import {
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import Map from '@/components/Map';
+import QosVisualization from '@/components/QosVisualization';
 
 interface HospitalDashboardProps {
   user: User;
@@ -432,6 +433,9 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
             </CardContent>
           </Card>
         </div>
+
+        {/* QoS Network Analytics */}
+        <QosVisualization />
       </div>
     </div>
   );
