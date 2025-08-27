@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { RouteOptimization } from '@/types';
+import { RouteOptimization, TrafficCondition } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Navigation } from 'lucide-react';
 
 // Dynamic imports to avoid SSR issues
 let L: any = null;
@@ -8,6 +10,7 @@ interface MapProps {
   route?: RouteOptimization;
   ambulanceLocation?: [number, number];
   hospitalLocation?: [number, number];
+  trafficConditions?: TrafficCondition[];
   className?: string;
 }
 
@@ -15,6 +18,7 @@ const Map: React.FC<MapProps> = ({
   route, 
   ambulanceLocation, 
   hospitalLocation, 
+  trafficConditions = [],
   className = "w-full h-96" 
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -81,6 +85,32 @@ const Map: React.FC<MapProps> = ({
     };
   }, [isLoaded, ambulanceLocation]);
 
+  const recenterMap = () => {
+    if (!map.current || !L) return;
+    
+    const bounds = L.latLngBounds([]);
+    let hasMarkers = false;
+
+    if (ambulanceLocation) {
+      bounds.extend([ambulanceLocation[1], ambulanceLocation[0]]);
+      hasMarkers = true;
+    }
+    
+    if (hospitalLocation) {
+      bounds.extend([hospitalLocation[1], hospitalLocation[0]]);
+      hasMarkers = true;
+    }
+
+    if (route?.route && route.route.length > 0) {
+      route.route.forEach(coord => bounds.extend([coord[1], coord[0]]));
+      hasMarkers = true;
+    }
+
+    if (hasMarkers) {
+      map.current.fitBounds(bounds, { padding: [20, 20] });
+    }
+  };
+
   // Add markers and routes
   useEffect(() => {
     if (!map.current || !L || !isLoaded) return;
@@ -129,7 +159,27 @@ const Map: React.FC<MapProps> = ({
       }).addTo(map.current);
     }
 
-  }, [ambulanceLocation, hospitalLocation, route, isLoaded]);
+    // Add traffic conditions polylines
+    trafficConditions.forEach((traffic, index) => {
+      if (traffic.coordinates && traffic.coordinates.length >= 2) {
+        const coords = traffic.coordinates.map(coord => [coord[1], coord[0]] as [number, number]);
+        const weight = traffic.traffic_level === 'heavy' ? 8 : traffic.traffic_level === 'moderate' ? 5 : 3;
+        const color = traffic.traffic_level === 'heavy' ? '#ef4444' : traffic.traffic_level === 'moderate' ? '#f59e0b' : '#22c55e';
+        
+        L.polyline(coords, {
+          color,
+          weight,
+          opacity: 0.7,
+          dashArray: traffic.traffic_level === 'heavy' ? '10, 5' : undefined
+        }).addTo(map.current)
+          .bindPopup(`<b>Traffic: ${traffic.traffic_level}</b><br>Delay: ${traffic.estimated_delay}min`);
+      }
+    });
+
+    // Auto fit bounds after adding markers and routes
+    setTimeout(recenterMap, 100);
+
+  }, [ambulanceLocation, hospitalLocation, route, trafficConditions, isLoaded]);
 
   if (loadError) {
     return (
@@ -153,7 +203,21 @@ const Map: React.FC<MapProps> = ({
     );
   }
 
-  return <div ref={mapContainer} className={className} style={{ borderRadius: '8px' }} />;
+  return (
+    <div className="relative">
+      <div ref={mapContainer} className={className} style={{ borderRadius: '8px' }} />
+      {isLoaded && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="absolute top-4 right-4 z-[1000] bg-background/90 backdrop-blur-sm h-10 w-10"
+          onClick={recenterMap}
+        >
+          <Navigation className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  );
 };
 
 export default Map;

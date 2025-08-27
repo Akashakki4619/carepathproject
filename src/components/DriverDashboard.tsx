@@ -15,9 +15,12 @@ import {
   Hospital,
   Route,
   Timer,
-  Car
+  Car,
+  Phone,
+  RotateCcw
 } from 'lucide-react';
 import Map from '@/components/Map';
+import StatusStrip from '@/components/StatusStrip';
 import { User, Hospital as HospitalType, Trip, TrafficCondition, RouteOptimization } from '@/types';
 import { findOptimalRoute, simulateVANETCommunication } from '@/utils/routing';
 import { useToast } from '@/hooks/use-toast';
@@ -65,6 +68,7 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
   const [route, setRoute] = useState<RouteOptimization | null>(null);
   const [vanetMessages, setVanetMessages] = useState<any[]>([]);
   const [trafficConditions, setTrafficConditions] = useState<TrafficCondition[]>([]);
+  const [mode, setMode] = useState<'idle' | 'active' | 'emergency'>('idle');
   const { toast } = useToast();
 
   // Simulate real-time location updates
@@ -153,6 +157,7 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
 
     setCurrentTrip(newTrip);
     setRoute(optimizedRoute);
+    setMode('active');
 
     toast({
       title: "Trip Started",
@@ -172,11 +177,20 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
     if (currentTrip) {
       setCurrentTrip(null);
       setRoute(null);
+      setMode('idle');
       toast({
         title: "Trip Completed",
         description: "Patient successfully delivered to hospital.",
       });
     }
+  };
+
+  const callHospital = () => {
+    // Stub function for calling hospital
+    toast({
+      title: "Calling Hospital",
+      description: "Contacting destination hospital...",
+    });
   };
 
   const getTrafficColor = (level: 'light' | 'moderate' | 'heavy') => {
@@ -349,7 +363,18 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
         </div>
 
         {/* Center Panel - Map */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-4">
+          {/* Status Strip */}
+          {currentTrip && (
+            <StatusStrip
+              route={route}
+              eta={currentTrip.estimated_arrival}
+              distance={route?.distance || null}
+              nextTurn="Turn right in 200m"
+              trafficConditions={trafficConditions}
+            />
+          )}
+          
           <Card className="h-[600px]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -366,10 +391,31 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
                   mockHospitals.find(h => h.id === selectedHospital)?.coordinates : 
                   undefined
                 }
+                trafficConditions={trafficConditions}
                 className="h-full w-full rounded-b-lg"
               />
             </CardContent>
           </Card>
+
+          {/* Sticky Action Bar */}
+          {currentTrip && (
+            <div className="sticky bottom-4 bg-card/95 backdrop-blur-sm border rounded-lg p-4 shadow-lg">
+              <div className="flex items-center justify-center gap-4">
+                <Button variant="outline" size="lg" className="h-12 px-6">
+                  <RotateCcw className="w-5 h-5 mr-2" />
+                  Next Turn
+                </Button>
+                <Button variant="outline" size="lg" className="h-12 px-6" onClick={callHospital}>
+                  <Phone className="w-5 h-5 mr-2" />
+                  Call Hospital
+                </Button>
+                <Button variant="destructive" size="lg" className="h-12 px-6" onClick={endTrip}>
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  End Trip
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
