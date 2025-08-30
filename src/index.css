@@ -167,6 +167,25 @@ All colors MUST be HSL.
   }
 }
 
+/* Leaflet Map Styles */
+.leaflet-container {
+  background: hsl(var(--muted)) !important;
+  outline: none !important;
+}
+
+.leaflet-control-container {
+  z-index: 999 !important;
+}
+
+.leaflet-tile {
+  opacity: 1 !important;
+}
+
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
 @layer components {
   .status-indicator {
     @apply w-3 h-3 rounded-full animate-pulse;

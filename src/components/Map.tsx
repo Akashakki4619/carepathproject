@@ -204,8 +204,19 @@ const Map: React.FC<MapProps> = ({
   }
 
   return (
-    <div className="relative">
-      <div ref={mapContainer} className={className} style={{ borderRadius: '8px' }} />
+    <div className="relative w-full h-full">
+      <div 
+        ref={mapContainer} 
+        className={`${className} leaflet-container`}
+        style={{ 
+          borderRadius: '8px',
+          minHeight: '300px',
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          zIndex: 0
+        }} 
+      />
       {isLoaded && (
         <Button
           variant="outline"
