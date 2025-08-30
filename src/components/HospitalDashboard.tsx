@@ -525,11 +525,11 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
                                 <span>Distance: {ambulance.distance.toFixed(1)} km</span>
                               </div>
                             </div>
-                            <div className="h-96 w-full">
+                            <div className="h-96 w-full flex flex-col">
                               <Map
                                 ambulanceLocation={ambulance.currentLocation}
                                 hospitalLocation={hospitalLocation}
-                                className="h-full w-full rounded-lg border"
+                                className="h-full w-full rounded-lg border min-h-0 flex-1"
                               />
                             </div>
                             {ambulance.patientInfo && (

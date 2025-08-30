@@ -375,14 +375,14 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
             />
           )}
           
-          <Card className="h-[600px]">
-            <CardHeader>
+          <Card className="h-[600px] flex flex-col">
+            <CardHeader className="flex-shrink-0">
               <CardTitle className="flex items-center gap-2">
                 <Route className="w-5 h-5" />
                 Live Route Map
               </CardTitle>
             </CardHeader>
-            <CardContent className="h-full p-0">
+            <CardContent className="flex-1 p-0 min-h-0">
               <Map 
                 route={route || undefined}
                 ambulanceLocation={currentLocation}
