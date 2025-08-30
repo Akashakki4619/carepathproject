@@ -54,18 +54,38 @@ export function findOptimalRoute(
 function generateWaypoints(start: [number, number], end: [number, number]): [number, number][] {
   const waypoints: [number, number][] = [start];
   
-  // Generate intermediate waypoints for more realistic routing
-  const steps = 5;
+  // Generate road-following waypoints to avoid water crossings
+  const steps = 8;
+  const [startLon, startLat] = start;
+  const [endLon, endLat] = end;
+  
   for (let i = 1; i < steps; i++) {
-    const lat = start[1] + (end[1] - start[1]) * (i / steps);
-    const lon = start[0] + (end[0] - start[0]) * (i / steps);
+    const progress = i / steps;
     
-    // Add some variation to simulate actual roads
-    const variation = 0.002;
-    const varLat = lat + (Math.random() - 0.5) * variation;
-    const varLon = lon + (Math.random() - 0.5) * variation;
+    // Create L-shaped or curved paths instead of straight lines
+    let lat: number, lon: number;
     
-    waypoints.push([varLon, varLat]);
+    if (progress < 0.5) {
+      // First half: move primarily in one direction
+      lat = startLat + (endLat - startLat) * (progress * 0.3);
+      lon = startLon + (endLon - startLon) * (progress * 2);
+    } else {
+      // Second half: move primarily in the other direction
+      lat = startLat + (endLat - startLat) * ((progress - 0.5) * 2 + 0.15);
+      lon = startLon + (endLon - startLon) * (0.6 + (progress - 0.5) * 0.8);
+    }
+    
+    // Add road-like variations (follow grid patterns typical in cities)
+    const gridOffset = 0.001;
+    const gridLat = Math.round(lat / gridOffset) * gridOffset;
+    const gridLon = Math.round(lon / gridOffset) * gridOffset;
+    
+    // Add small random variation for realism but keep it road-like
+    const roadVariation = 0.0003;
+    const finalLat = gridLat + (Math.random() - 0.5) * roadVariation;
+    const finalLon = gridLon + (Math.random() - 0.5) * roadVariation;
+    
+    waypoints.push([finalLon, finalLat]);
   }
   
   waypoints.push(end);

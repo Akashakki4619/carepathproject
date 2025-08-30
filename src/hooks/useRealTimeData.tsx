@@ -75,17 +75,17 @@ export const useRealTimeAmbulances = () => {
     setAmbulances(mockAmbulances);
     setLoading(false);
 
-    // Simulate real-time updates
+    // Simulate real-time updates with slower intervals to prevent map refreshing
     const interval = setInterval(() => {
       setAmbulances(prev => prev.map(ambulance => ({
         ...ambulance,
         location: {
-          lat: ambulance.location.lat + (Math.random() - 0.5) * 0.001,
-          lng: ambulance.location.lng + (Math.random() - 0.5) * 0.001,
+          lat: ambulance.location.lat + (Math.random() - 0.5) * 0.0005, // Smaller movements
+          lng: ambulance.location.lng + (Math.random() - 0.5) * 0.0005,
         },
         last_updated: new Date(),
       })));
-    }, 3000);
+    }, 15000); // Update every 15 seconds instead of 3
 
     return () => clearInterval(interval);
   }, []);

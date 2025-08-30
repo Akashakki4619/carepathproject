@@ -111,11 +111,11 @@ const Map: React.FC<MapProps> = ({
     }
   };
 
-  // Add markers and routes
+  // Add markers and routes - memoize to prevent unnecessary updates
   useEffect(() => {
     if (!map.current || !L || !isLoaded) return;
 
-    // Clear existing layers
+    // Clear existing layers except tile layer
     map.current.eachLayer((layer: any) => {
       if (layer instanceof L.Marker || layer instanceof L.Polyline) {
         map.current.removeLayer(layer);
