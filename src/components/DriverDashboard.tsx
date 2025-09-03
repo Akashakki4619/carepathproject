@@ -25,6 +25,7 @@ import { User, Hospital as HospitalType, Trip, TrafficCondition, RouteOptimizati
 import { findOptimalRoute, simulateVANETCommunication } from '@/utils/routing';
 import { useToast } from '@/hooks/use-toast';
 import { qosManager, Priority } from '@/services/QosManager';
+import { useVanetCommunication } from '@/hooks/useVanetCommunication';
 
 interface DriverDashboardProps {
   user: User;
@@ -64,51 +65,21 @@ const mockHospitals: HospitalType[] = [
 const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => {
   const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
   const [selectedHospital, setSelectedHospital] = useState<string>('');
-  const [currentLocation, setCurrentLocation] = useState<[number, number]>([-74.0060, 40.7128]);
+  const [currentLocation, setCurrentLocation] = useState<[number, number]>([-74.0776, 40.7282]); // Brooklyn side
   const [route, setRoute] = useState<RouteOptimization | null>(null);
-  const [vanetMessages, setVanetMessages] = useState<any[]>([]);
   const [trafficConditions, setTrafficConditions] = useState<TrafficCondition[]>([]);
   const [mode, setMode] = useState<'idle' | 'active' | 'emergency'>('idle');
   const { toast } = useToast();
+  const { messages: vanetMessages, networkStatus } = useVanetCommunication(currentLocation);
 
-  // Simulate real-time location updates with slower interval
+  // Simulate real-time location updates with much slower interval
   useEffect(() => {
     const interval = setInterval(async () => {
       setCurrentLocation(prev => [
-        prev[0] + (Math.random() - 0.5) * 0.0003, // Smaller movements
-        prev[1] + (Math.random() - 0.5) * 0.0003
+        prev[0] + (Math.random() - 0.5) * 0.0002, // Very small movements
+        prev[1] + (Math.random() - 0.5) * 0.0002
       ]);
-
-      // Simulate VANET communication
-      const messages = simulateVANETCommunication(currentLocation);
-      setVanetMessages(messages);
-
-      // Update traffic conditions based on VANET data
-      const newTrafficConditions: TrafficCondition[] = messages.map((msg, index) => ({
-        road_segment: `segment_${index}`,
-        coordinates: [msg.location, [msg.location[0] + 0.001, msg.location[1] + 0.001]],
-        traffic_level: msg.trafficInfo.traffic_level,
-        estimated_delay: msg.trafficInfo.estimated_delay,
-        last_updated: new Date()
-      }));
-      setTrafficConditions(newTrafficConditions);
-
-      // Send traffic updates via QoS with MEDIUM priority
-      if (newTrafficConditions.length > 0) {
-        await qosManager.sendPacket(
-          user.id,
-          'traffic_update',
-          'MEDIUM',
-          {
-            ambulance_id: user.ambulance_id,
-            location: currentLocation,
-            traffic_conditions: newTrafficConditions,
-            timestamp: new Date().toISOString()
-          },
-          'traffic_system'
-        );
-      }
-    }, 20000); // Update every 20 seconds instead of 5
+    }, 30000); // Update every 30 seconds
 
     return () => clearInterval(interval);
   }, [currentLocation, user.id, user.ambulance_id]);
@@ -343,20 +314,23 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
             </CardHeader>
             <CardContent>
               <div className="space-y-3 max-h-40 overflow-y-auto">
-                {vanetMessages.map((msg, index) => (
+                {vanetMessages.length > 0 ? vanetMessages.map((msg, index) => (
                   <div key={index} className="flex items-center gap-3 p-2 bg-muted rounded-lg">
-                    <div className={`status-indicator ${
-                      msg.trafficInfo.traffic_level === 'heavy' ? 'traffic-heavy' :
-                      msg.trafficInfo.traffic_level === 'moderate' ? 'traffic-moderate' : 'traffic-light'
+                    <div className={`w-2 h-2 rounded-full ${
+                      msg.priority === 'critical' ? 'bg-destructive' :
+                      msg.priority === 'high' ? 'bg-orange-500' :
+                      msg.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
                     }`} />
                     <div className="flex-1 text-xs">
-                      <p>Vehicle {msg.vehicleId}: {msg.trafficInfo.traffic_level} traffic</p>
+                      <p className="font-medium">{msg.content}</p>
                       <p className="text-muted-foreground">
-                        Delay: {msg.trafficInfo.estimated_delay}min
+                        {msg.messageType} - {msg.timestamp.toLocaleTimeString()}
                       </p>
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-muted-foreground text-sm">No VANET messages</p>
+                )}
               </div>
             </CardContent>
           </Card>

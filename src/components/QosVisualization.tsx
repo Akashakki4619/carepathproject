@@ -24,7 +24,7 @@ const QosVisualization: React.FC<QosVisualizationProps> = ({ className = '' }) =
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 5000); // Update every 5 seconds
+    const interval = setInterval(fetchData, 30000); // Update every 30 seconds to prevent map refresh
     return () => clearInterval(interval);
   }, [timeRange]);
 
