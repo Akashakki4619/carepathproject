@@ -54,38 +54,84 @@ export function findOptimalRoute(
 function generateWaypoints(start: [number, number], end: [number, number]): [number, number][] {
   const waypoints: [number, number][] = [start];
   
-  // Generate road-following waypoints to avoid water crossings
-  const steps = 8;
+  // Generate Manhattan-style routing to follow streets and avoid water
+  const steps = 12;
   const [startLon, startLat] = start;
   const [endLon, endLat] = end;
   
-  for (let i = 1; i < steps; i++) {
-    const progress = i / steps;
+  // Create a path that follows major roads/bridges in NYC area
+  const majorBridges = [
+    { lat: 40.7061, lng: -74.0087 }, // Brooklyn Bridge area
+    { lat: 40.7071, lng: -74.0036 }, // Manhattan Bridge area
+    { lat: 40.7181, lng: -74.0024 }, // Williamsburg Bridge area
+  ];
+  
+  // Determine if we need to cross water (Manhattan to other boroughs)
+  const needsBridge = Math.abs(startLon - endLon) > 0.02 || Math.abs(startLat - endLat) > 0.03;
+  
+  if (needsBridge) {
+    // Route via nearest bridge
+    const nearestBridge = majorBridges.reduce((closest, bridge) => {
+      const distToStart = Math.abs(bridge.lat - startLat) + Math.abs(bridge.lng - startLon);
+      const closestDist = Math.abs(closest.lat - startLat) + Math.abs(closest.lng - startLon);
+      return distToStart < closestDist ? bridge : closest;
+    });
     
-    // Create L-shaped or curved paths instead of straight lines
-    let lat: number, lon: number;
+    // Route to bridge first, then to destination
+    const halfSteps = Math.floor(steps / 2);
     
-    if (progress < 0.5) {
-      // First half: move primarily in one direction
-      lat = startLat + (endLat - startLat) * (progress * 0.3);
-      lon = startLon + (endLon - startLon) * (progress * 2);
-    } else {
-      // Second half: move primarily in the other direction
-      lat = startLat + (endLat - startLat) * ((progress - 0.5) * 2 + 0.15);
-      lon = startLon + (endLon - startLon) * (0.6 + (progress - 0.5) * 0.8);
+    // Route to bridge
+    for (let i = 1; i <= halfSteps; i++) {
+      const progress = i / halfSteps;
+      const lat = startLat + (nearestBridge.lat - startLat) * progress;
+      const lon = startLon + (nearestBridge.lng - startLon) * progress;
+      
+      // Snap to street grid
+      const gridSize = 0.002; // Larger grid for main streets
+      const gridLat = Math.round(lat / gridSize) * gridSize;
+      const gridLon = Math.round(lon / gridSize) * gridSize;
+      
+      waypoints.push([gridLon, gridLat]);
     }
     
-    // Add road-like variations (follow grid patterns typical in cities)
-    const gridOffset = 0.001;
-    const gridLat = Math.round(lat / gridOffset) * gridOffset;
-    const gridLon = Math.round(lon / gridOffset) * gridOffset;
-    
-    // Add small random variation for realism but keep it road-like
-    const roadVariation = 0.0003;
-    const finalLat = gridLat + (Math.random() - 0.5) * roadVariation;
-    const finalLon = gridLon + (Math.random() - 0.5) * roadVariation;
-    
-    waypoints.push([finalLon, finalLat]);
+    // Route from bridge to destination
+    for (let i = 1; i < halfSteps; i++) {
+      const progress = i / halfSteps;
+      const lat = nearestBridge.lat + (endLat - nearestBridge.lat) * progress;
+      const lon = nearestBridge.lng + (endLon - nearestBridge.lng) * progress;
+      
+      // Snap to street grid
+      const gridSize = 0.002;
+      const gridLat = Math.round(lat / gridSize) * gridSize;
+      const gridLon = Math.round(lon / gridSize) * gridSize;
+      
+      waypoints.push([gridLon, gridLat]);
+    }
+  } else {
+    // Direct Manhattan-style routing (L-shaped paths)
+    for (let i = 1; i < steps; i++) {
+      const progress = i / steps;
+      
+      // Create L-shaped path: go mostly in one direction first, then the other
+      let lat: number, lon: number;
+      
+      if (progress < 0.7) {
+        // First 70%: primarily longitudinal movement
+        lat = startLat + (endLat - startLat) * (progress * 0.2);
+        lon = startLon + (endLon - startLon) * (progress / 0.7);
+      } else {
+        // Last 30%: primarily latitudinal movement
+        lat = startLat + (endLat - startLat) * (0.14 + (progress - 0.7) / 0.3 * 0.86);
+        lon = startLon + (endLon - startLon) * 1.0;
+      }
+      
+      // Snap to street grid pattern
+      const gridSize = 0.001; // Smaller grid for local streets
+      const gridLat = Math.round(lat / gridSize) * gridSize;
+      const gridLon = Math.round(lon / gridSize) * gridSize;
+      
+      waypoints.push([gridLon, gridLat]);
+    }
   }
   
   waypoints.push(end);

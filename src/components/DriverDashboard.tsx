@@ -71,12 +71,12 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
   const [mode, setMode] = useState<'idle' | 'active' | 'emergency'>('idle');
   const { toast } = useToast();
 
-  // Simulate real-time location updates
+  // Simulate real-time location updates with slower interval
   useEffect(() => {
     const interval = setInterval(async () => {
       setCurrentLocation(prev => [
-        prev[0] + (Math.random() - 0.5) * 0.001,
-        prev[1] + (Math.random() - 0.5) * 0.001
+        prev[0] + (Math.random() - 0.5) * 0.0003, // Smaller movements
+        prev[1] + (Math.random() - 0.5) * 0.0003
       ]);
 
       // Simulate VANET communication
@@ -108,7 +108,7 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
           'traffic_system'
         );
       }
-    }, 5000);
+    }, 20000); // Update every 20 seconds instead of 5
 
     return () => clearInterval(interval);
   }, [currentLocation, user.id, user.ambulance_id]);

@@ -124,7 +124,7 @@ export const useRealTimeHospitals = () => {
     setHospitals(mockHospitals);
     setLoading(false);
 
-    // Simulate capacity changes
+    // Simulate capacity changes with slower interval
     const interval = setInterval(() => {
       setHospitals(prev => prev.map(hospital => ({
         ...hospital,
@@ -133,7 +133,7 @@ export const useRealTimeHospitals = () => {
           ((hospital.capacity - hospital.current_load) / hospital.capacity) * 100 : 0,
         last_updated: new Date(),
       })));
-    }, 5000);
+    }, 30000); // Update every 30 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -168,7 +168,7 @@ export const useRealTimeTraffic = () => {
     setTrafficUpdates(mockTraffic);
     setLoading(false);
 
-    // Simulate traffic changes
+    // Simulate traffic changes with slower interval
     const interval = setInterval(() => {
       setTrafficUpdates(prev => prev.map(traffic => ({
         ...traffic,
@@ -176,7 +176,7 @@ export const useRealTimeTraffic = () => {
         delay_minutes: Math.max(0, traffic.delay_minutes + Math.floor(Math.random() * 6) - 3),
         last_updated: new Date(),
       })));
-    }, 8000);
+    }, 25000); // Update every 25 seconds
 
     return () => clearInterval(interval);
   }, []);
