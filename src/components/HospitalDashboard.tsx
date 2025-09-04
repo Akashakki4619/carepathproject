@@ -65,71 +65,131 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
   const [incomingAmbulances, setIncomingAmbulances] = useState<IncomingAmbulance[]>([]);
   const [selectedAmbulance, setSelectedAmbulance] = useState<IncomingAmbulance | null>(null);
   const [hospitalStats, setHospitalStats] = useState({
-    totalBeds: 120,
-    occupiedBeds: 85,
-    emergencyBeds: 20,
-    availableEmergencyBeds: 12,
-    staffOnDuty: 45,
-    currentLoad: 71
+    totalBeds: 150,
+    occupiedBeds: 98,
+    emergencyBeds: 25,
+    availableEmergencyBeds: 8,
+    staffOnDuty: 52,
+    currentLoad: 78,
+    icuBeds: 12,
+    availableIcuBeds: 3,
+    operatingRooms: 6,
+    availableOperatingRooms: 2,
+    totalStaff: 68,
+    surgeons: 8,
+    nurses: 32,
+    emergencyDoctors: 6
   });
   const { toast } = useToast();
 
   // Hospital location (example coordinates)
   const hospitalLocation: [number, number] = [-74.0050, 40.7120];
 
-  // Simulate incoming ambulances
+  // Simulate incoming ambulances with complete realistic data
   useEffect(() => {
     const mockAmbulances: IncomingAmbulance[] = [
       {
         id: '1',
-        driverName: 'John Driver',
-        driverPhone: '+1 (555) 123-4567',
-        ambulanceNumber: 'EMT-001',
-        currentLocation: [-74.0060, 40.7128],
-        eta: new Date(Date.now() + 8 * 60000),
-        distance: 2.3,
+        driverName: 'Michael Rodriguez',
+        driverPhone: '+1 (212) 555-7842',
+        ambulanceNumber: 'AMB-2401',
+        currentLocation: [-74.0089, 40.7158],
+        eta: new Date(Date.now() + 6 * 60000),
+        distance: 1.8,
         trafficStatus: 'moderate',
-        patientInfo: 'Cardiac emergency, stable condition',
+        patientInfo: '67-year-old male experiencing chest pain and shortness of breath. Patient is conscious and responsive. Started IV and administered nitroglycerin.',
         status: 'approaching',
         emergencyType: 'Cardiac Emergency',
         severity: 'critical',
-        allergies: ['Penicillin', 'Shellfish'],
-        medications: ['Aspirin', 'Metoprolol'],
+        allergies: ['Penicillin', 'Latex', 'Shellfish'],
+        medications: ['Lisinopril 10mg daily', 'Metoprolol 50mg twice daily', 'Atorvastatin 40mg nightly'],
         vitalSigns: {
-          heartRate: 95,
-          bloodPressureSystolic: 140,
-          bloodPressureDiastolic: 90,
-          oxygenSaturation: 92,
+          heartRate: 98,
+          bloodPressureSystolic: 165,
+          bloodPressureDiastolic: 95,
+          oxygenSaturation: 94,
+          respiratoryRate: 20,
+          temperature: 37.1,
+          consciousness: 'alert',
+          painLevel: 8
+        }
+      },
+      {
+        id: '2',
+        driverName: 'Sarah Chen',
+        driverPhone: '+1 (212) 555-3619',
+        ambulanceNumber: 'AMB-1205',
+        currentLocation: [-74.0195, 40.7282],
+        eta: new Date(Date.now() + 12 * 60000),
+        distance: 3.2,
+        trafficStatus: 'light',
+        patientInfo: '34-year-old female involved in motorcycle accident. Multiple lacerations and suspected fracture of left tibia. Patient is stable.',
+        status: 'approaching',
+        emergencyType: 'Trauma - Motor Vehicle Accident',
+        severity: 'high',
+        allergies: ['Codeine', 'NSAIDS'],
+        medications: ['Birth control pills', 'Vitamin D3', 'Emergency morphine 5mg administered'],
+        vitalSigns: {
+          heartRate: 105,
+          bloodPressureSystolic: 110,
+          bloodPressureDiastolic: 72,
+          oxygenSaturation: 97,
           respiratoryRate: 18,
-          temperature: 37.2,
+          temperature: 36.9,
           consciousness: 'alert',
           painLevel: 7
         }
       },
       {
-        id: '2',
-        driverName: 'Sarah Wilson',
-        driverPhone: '+1 (555) 987-6543',
-        ambulanceNumber: 'EMT-015',
-        currentLocation: [-74.0160, 40.7228],
-        eta: new Date(Date.now() + 15 * 60000),
-        distance: 4.1,
-        trafficStatus: 'light',
-        patientInfo: 'Motor vehicle accident, multiple injuries',
+        id: '3',
+        driverName: 'James Thompson',
+        driverPhone: '+1 (212) 555-8253',
+        ambulanceNumber: 'AMB-0847',
+        currentLocation: [-74.0245, 40.7089],
+        eta: new Date(Date.now() + 18 * 60000),
+        distance: 4.7,
+        trafficStatus: 'heavy',
+        patientInfo: '45-year-old construction worker fell from scaffolding. Possible head injury and spinal trauma. C-collar applied, patient immobilized.',
         status: 'approaching',
-        emergencyType: 'Trauma',
-        severity: 'high',
-        allergies: ['None known'],
-        medications: ['Morphine', 'Saline'],
+        emergencyType: 'Trauma - Fall from Height',
+        severity: 'critical',
+        allergies: ['No known allergies'],
+        medications: ['Ibuprofen as needed', 'Fentanyl 100mcg administered for pain'],
         vitalSigns: {
-          heartRate: 110,
-          bloodPressureSystolic: 85,
-          bloodPressureDiastolic: 50,
-          oxygenSaturation: 88,
-          respiratoryRate: 22,
-          temperature: 36.8,
+          heartRate: 88,
+          bloodPressureSystolic: 95,
+          bloodPressureDiastolic: 58,
+          oxygenSaturation: 91,
+          respiratoryRate: 16,
+          temperature: 36.5,
           consciousness: 'drowsy',
           painLevel: 9
+        }
+      },
+      {
+        id: '4',
+        driverName: 'Lisa Anderson',
+        driverPhone: '+1 (212) 555-4127',
+        ambulanceNumber: 'AMB-1963',
+        currentLocation: [-74.0132, 40.7456],
+        eta: new Date(Date.now() + 22 * 60000),
+        distance: 5.1,
+        trafficStatus: 'moderate',
+        patientInfo: '28-year-old pregnant female (32 weeks) experiencing severe abdominal pain and bleeding. Vitals stable, possible placental abruption.',
+        status: 'approaching',
+        emergencyType: 'Obstetric Emergency',
+        severity: 'high',
+        allergies: ['Aspirin'],
+        medications: ['Prenatal vitamins', 'Iron supplements', 'IV fluids running'],
+        vitalSigns: {
+          heartRate: 112,
+          bloodPressureSystolic: 138,
+          bloodPressureDiastolic: 88,
+          oxygenSaturation: 98,
+          respiratoryRate: 22,
+          temperature: 37.3,
+          consciousness: 'alert',
+          painLevel: 8
         }
       }
     ];
@@ -549,43 +609,16 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
           </CardContent>
         </Card>
 
-        {/* Preparation Checklist */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Emergency Preparation</CardTitle>
-              <CardDescription>
-                Ensure readiness for incoming patients
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between p-2 bg-success-light rounded">
-                <span className="text-sm">Emergency team alerted</span>
-                <Badge variant="secondary">Ready</Badge>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-success-light rounded">
-                <span className="text-sm">Trauma bay prepared</span>
-                <Badge variant="secondary">Ready</Badge>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-warning-light rounded">
-                <span className="text-sm">Blood bank notified</span>
-                <Badge variant="secondary">In Progress</Badge>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-success-light rounded">
-                <span className="text-sm">Radiology on standby</span>
-                <Badge variant="secondary">Ready</Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Resource Allocation</CardTitle>
-              <CardDescription>
-                Current hospital resource status
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+        {/* Resource Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Resource Status</CardTitle>
+            <CardDescription>
+              Current hospital capacity and resource allocation
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <div className="flex justify-between text-sm mb-1">
                   <span>Emergency Beds</span>
@@ -595,24 +628,21 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
               </div>
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span>Operating Rooms</span>
-                  <span>3/5 Available</span>
+                  <span>ICU Beds</span>
+                  <span>{hospitalStats.availableIcuBeds}/{hospitalStats.icuBeds}</span>
                 </div>
-                <Progress value={60} className="h-2" />
+                <Progress value={(hospitalStats.availableIcuBeds / hospitalStats.icuBeds) * 100} className="h-2" />
               </div>
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span>Medical Staff</span>
-                  <span>{hospitalStats.staffOnDuty}/50 On Duty</span>
+                  <span>Operating Rooms</span>
+                  <span>{hospitalStats.availableOperatingRooms}/{hospitalStats.operatingRooms}</span>
                 </div>
-                <Progress value={(hospitalStats.staffOnDuty / 50) * 100} className="h-2" />
+                <Progress value={(hospitalStats.availableOperatingRooms / hospitalStats.operatingRooms) * 100} className="h-2" />
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* QoS Network Analytics */}
-        <QosVisualization />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
