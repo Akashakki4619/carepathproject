@@ -37,7 +37,7 @@ const mockHospitals: HospitalType[] = [
     id: 'h1', 
     name: 'NewYork-Presbyterian Hospital', 
     address: '525 E 68th St, New York, NY', 
-    coordinates: [-73.9441, 40.7648], // Upper East Side - on land
+    coordinates: [-73.9564, 40.7648], // Upper East Side - definitely on land
     contact_number: '212-746-5454',
     capacity: 100,
     current_load: 65
