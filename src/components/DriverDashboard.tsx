@@ -35,28 +35,28 @@ interface DriverDashboardProps {
 const mockHospitals: HospitalType[] = [
   { 
     id: 'h1', 
-    name: 'City General Hospital', 
-    address: '123 Main St', 
-    coordinates: [-74.0060, 40.7128], 
-    contact_number: '555-0101',
+    name: 'NewYork-Presbyterian Hospital', 
+    address: '525 E 68th St, New York, NY', 
+    coordinates: [-73.9441, 40.7648], // Upper East Side - on land
+    contact_number: '212-746-5454',
     capacity: 100,
     current_load: 65
   },
   { 
     id: 'h2', 
-    name: 'Metro Emergency Center', 
-    address: '456 Oak Ave', 
-    coordinates: [-74.0160, 40.7228], 
-    contact_number: '555-0102',
+    name: 'Mount Sinai Hospital', 
+    address: '1468 Madison Ave, New York, NY', 
+    coordinates: [-73.9514, 40.7903], // Upper East Side - on land
+    contact_number: '212-241-6500',
     capacity: 80,
     current_load: 40
   },
   { 
     id: 'h3', 
-    name: 'University Medical Center', 
-    address: '789 Pine St', 
-    coordinates: [-73.9960, 40.7028], 
-    contact_number: '555-0103',
+    name: 'NYU Langone Health', 
+    address: '550 1st Ave, New York, NY', 
+    coordinates: [-73.9738, 40.7392], // Midtown East - on land
+    contact_number: '212-263-7300',
     capacity: 120,
     current_load: 90
   }
@@ -65,7 +65,7 @@ const mockHospitals: HospitalType[] = [
 const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => {
   const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
   const [selectedHospital, setSelectedHospital] = useState<string>('');
-  const [currentLocation, setCurrentLocation] = useState<[number, number]>([-74.0776, 40.7282]); // Brooklyn side
+  const [currentLocation, setCurrentLocation] = useState<[number, number]>([-73.9876, 40.7489]); // Times Square area - on land
   const [route, setRoute] = useState<RouteOptimization | null>(null);
   const [trafficConditions, setTrafficConditions] = useState<TrafficCondition[]>([]);
   const [mode, setMode] = useState<'idle' | 'active' | 'emergency'>('idle');
