@@ -93,7 +93,7 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
         driverName: 'Michael Rodriguez',
         driverPhone: '+1 (212) 555-7842',
         ambulanceNumber: 'AMB-2401',
-        currentLocation: [-74.0089, 40.7158],
+        currentLocation: [-73.9857, 40.7484], // Times Square area - on land
         eta: new Date(Date.now() + 6 * 60000),
         distance: 1.8,
         trafficStatus: 'moderate',
@@ -119,7 +119,7 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
         driverName: 'Sarah Chen',
         driverPhone: '+1 (212) 555-3619',
         ambulanceNumber: 'AMB-1205',
-        currentLocation: [-74.0195, 40.7282],
+        currentLocation: [-73.9441, 40.8176], // Washington Heights - on land
         eta: new Date(Date.now() + 12 * 60000),
         distance: 3.2,
         trafficStatus: 'light',
@@ -145,7 +145,7 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
         driverName: 'James Thompson',
         driverPhone: '+1 (212) 555-8253',
         ambulanceNumber: 'AMB-0847',
-        currentLocation: [-74.0245, 40.7089],
+        currentLocation: [-73.9352, 40.7306], // Lower East Side - on land
         eta: new Date(Date.now() + 18 * 60000),
         distance: 4.7,
         trafficStatus: 'heavy',
@@ -171,7 +171,7 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
         driverName: 'Lisa Anderson',
         driverPhone: '+1 (212) 555-4127',
         ambulanceNumber: 'AMB-1963',
-        currentLocation: [-74.0132, 40.7456],
+        currentLocation: [-73.9712, 40.7831], // Upper West Side - on land
         eta: new Date(Date.now() + 22 * 60000),
         distance: 5.1,
         trafficStatus: 'moderate',
