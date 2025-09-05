@@ -23,9 +23,6 @@ const Map: React.FC<MapProps> = ({
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<any>(null);
-  const ambulanceMarker = useRef<any>(null);
-  const hospitalMarker = useRef<any>(null);
-  const routePolyline = useRef<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -114,9 +111,16 @@ const Map: React.FC<MapProps> = ({
     }
   };
 
-  // Initialize markers and routes once
+  // Add markers and routes - memoize to prevent unnecessary updates
   useEffect(() => {
     if (!map.current || !L || !isLoaded) return;
+
+    // Clear existing layers except tile layer
+    map.current.eachLayer((layer: any) => {
+      if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+        map.current.removeLayer(layer);
+      }
+    });
 
     // Create custom icons
     const ambulanceIcon = L.divIcon({
@@ -131,18 +135,28 @@ const Map: React.FC<MapProps> = ({
       className: 'custom-marker'
     });
 
-    // Initialize ambulance marker
-    if (ambulanceLocation && !ambulanceMarker.current) {
-      ambulanceMarker.current = L.marker([ambulanceLocation[1], ambulanceLocation[0]], { icon: ambulanceIcon })
+    // Add ambulance marker
+    if (ambulanceLocation) {
+      L.marker([ambulanceLocation[1], ambulanceLocation[0]], { icon: ambulanceIcon })
         .addTo(map.current)
         .bindPopup('<b>Ambulance</b><br>Current Location');
     }
 
-    // Initialize hospital marker
-    if (hospitalLocation && !hospitalMarker.current) {
-      hospitalMarker.current = L.marker([hospitalLocation[1], hospitalLocation[0]], { icon: hospitalIcon })
+    // Add hospital marker
+    if (hospitalLocation) {
+      L.marker([hospitalLocation[1], hospitalLocation[0]], { icon: hospitalIcon })
         .addTo(map.current)
         .bindPopup('<b>Hospital</b><br>Destination');
+    }
+
+    // Add route
+    if (route?.route && route.route.length > 0) {
+      const routeCoords = route.route.map(coord => [coord[1], coord[0]] as [number, number]);
+      L.polyline(routeCoords, { 
+        color: '#dc2626', 
+        weight: 5, 
+        opacity: 0.8 
+      }).addTo(map.current);
     }
 
     // Add traffic conditions polylines
@@ -162,75 +176,10 @@ const Map: React.FC<MapProps> = ({
       }
     });
 
-    return () => {
-      if (ambulanceMarker.current) {
-        map.current?.removeLayer(ambulanceMarker.current);
-        ambulanceMarker.current = null;
-      }
-      if (hospitalMarker.current) {
-        map.current?.removeLayer(hospitalMarker.current);
-        hospitalMarker.current = null;
-      }
-      if (routePolyline.current) {
-        map.current?.removeLayer(routePolyline.current);
-        routePolyline.current = null;
-      }
-    };
-  }, [isLoaded, trafficConditions]);
+    // Auto fit bounds after adding markers and routes
+    setTimeout(recenterMap, 100);
 
-  // Update ambulance position without re-rendering
-  useEffect(() => {
-    if (!ambulanceMarker.current || !ambulanceLocation || !L) return;
-    
-    ambulanceMarker.current.setLatLng([ambulanceLocation[1], ambulanceLocation[0]]);
-  }, [ambulanceLocation]);
-
-  // Update hospital marker when location changes
-  useEffect(() => {
-    if (!map.current || !L || !isLoaded) return;
-
-    if (hospitalLocation) {
-      if (hospitalMarker.current) {
-        hospitalMarker.current.setLatLng([hospitalLocation[1], hospitalLocation[0]]);
-      } else {
-        const hospitalIcon = L.divIcon({
-          html: `<div style="background: #2563eb; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">🏥</div>`,
-          iconSize: [24, 24],
-          className: 'custom-marker'
-        });
-        hospitalMarker.current = L.marker([hospitalLocation[1], hospitalLocation[0]], { icon: hospitalIcon })
-          .addTo(map.current)
-          .bindPopup('<b>Hospital</b><br>Destination');
-      }
-    } else if (hospitalMarker.current) {
-      map.current.removeLayer(hospitalMarker.current);
-      hospitalMarker.current = null;
-    }
-  }, [hospitalLocation, isLoaded]);
-
-  // Update route when it changes
-  useEffect(() => {
-    if (!map.current || !L || !isLoaded) return;
-
-    // Remove existing route
-    if (routePolyline.current) {
-      map.current.removeLayer(routePolyline.current);
-      routePolyline.current = null;
-    }
-
-    // Add new route
-    if (route?.route && route.route.length > 0) {
-      const routeCoords = route.route.map(coord => [coord[1], coord[0]] as [number, number]);
-      routePolyline.current = L.polyline(routeCoords, { 
-        color: '#dc2626', 
-        weight: 5, 
-        opacity: 0.8 
-      }).addTo(map.current);
-
-      // Auto fit bounds after adding route
-      setTimeout(recenterMap, 100);
-    }
-  }, [route, isLoaded]);
+  }, [ambulanceLocation, hospitalLocation, route, trafficConditions, isLoaded]);
 
   if (loadError) {
     return (
