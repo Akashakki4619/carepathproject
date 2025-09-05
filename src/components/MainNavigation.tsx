@@ -10,6 +10,8 @@ import AnalyticsDashboard from './AnalyticsDashboard';
 import UserManagement from './UserManagement';
 import { Users, MessageSquare, BarChart3, Settings, Ambulance, Building2, User, Activity } from 'lucide-react';
 import LiveTracking from './LiveTracking';
+import MapMarkerTest from './MapMarkerTest';
+import SimpleMapTest from './SimpleMapTest';
 
 interface MainNavigationProps {
   user: any;
@@ -49,6 +51,14 @@ const MainNavigation: React.FC<MainNavigationProps> = ({ user, onLogout }) => {
                 <Activity className="w-4 h-4" />
                 <span>Live Tracking</span>
               </TabsTrigger>
+              <TabsTrigger value="map-test" className="flex items-center space-x-2">
+                <Activity className="w-4 h-4" />
+                <span>Map Test</span>
+              </TabsTrigger>
+              <TabsTrigger value="simple-map" className="flex items-center space-x-2">
+                <Activity className="w-4 h-4" />
+                <span>Simple Map</span>
+              </TabsTrigger>
               <div className="ml-auto">
                 <Button variant="outline" onClick={onLogout}>
                   Logout
@@ -84,6 +94,14 @@ const MainNavigation: React.FC<MainNavigationProps> = ({ user, onLogout }) => {
 
         <TabsContent value="tracking" className="mt-0">
           <LiveTracking />
+        </TabsContent>
+
+        <TabsContent value="map-test" className="mt-0">
+          <MapMarkerTest />
+        </TabsContent>
+
+        <TabsContent value="simple-map" className="mt-0">
+          <SimpleMapTest />
         </TabsContent>
       </Tabs>
     </div>

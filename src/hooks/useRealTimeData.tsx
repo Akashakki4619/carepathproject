@@ -75,17 +75,33 @@ export const useRealTimeAmbulances = () => {
     setAmbulances(mockAmbulances);
     setLoading(false);
 
-    // Simulate real-time updates with slower intervals to prevent map refreshing
+    // Simulate real-time updates with optimized intervals
     const interval = setInterval(() => {
-      setAmbulances(prev => prev.map(ambulance => ({
-        ...ambulance,
-        location: {
-          lat: ambulance.location.lat + (Math.random() - 0.5) * 0.0005, // Smaller movements
-          lng: ambulance.location.lng + (Math.random() - 0.5) * 0.0005,
-        },
-        last_updated: new Date(),
-      })));
-    }, 15000); // Update every 15 seconds instead of 3
+      setAmbulances(prev => prev.map(ambulance => {
+        // Always update last_updated timestamp to keep markers visible
+        const updatedAmbulance = {
+          ...ambulance,
+          last_updated: new Date(),
+        };
+
+        // Only update location if ambulance is moving (not available)
+        if (ambulance.status === 'available') {
+          return updatedAmbulance; // Keep available ambulances in place but update timestamp
+        }
+
+        // Calculate realistic movement based on status
+        const movementFactor = ambulance.status === 'en_route' ? 0.001 : 0.0005;
+        const direction = Math.random() * 2 * Math.PI; // Random direction
+        
+        return {
+          ...updatedAmbulance,
+          location: {
+            lat: ambulance.location.lat + Math.cos(direction) * movementFactor * (Math.random() - 0.5),
+            lng: ambulance.location.lng + Math.sin(direction) * movementFactor * (Math.random() - 0.5),
+          },
+        };
+      }));
+    }, 3000); // Update every 3 seconds for smooth movement
 
     return () => clearInterval(interval);
   }, []);
@@ -126,13 +142,20 @@ export const useRealTimeHospitals = () => {
 
     // Simulate capacity changes with slower interval
     const interval = setInterval(() => {
-      setHospitals(prev => prev.map(hospital => ({
-        ...hospital,
-        current_load: Math.max(0, hospital.current_load + Math.floor(Math.random() * 6) - 3),
-        availability: hospital.capacity > 0 ? 
-          ((hospital.capacity - hospital.current_load) / hospital.capacity) * 100 : 0,
-        last_updated: new Date(),
-      })));
+      setHospitals(prev => prev.map(hospital => {
+        const newLoad = Math.max(0, Math.min(hospital.capacity, hospital.current_load + Math.floor(Math.random() * 6) - 3));
+        const newAvailability = hospital.capacity > 0 ? 
+          ((hospital.capacity - newLoad) / hospital.capacity) * 100 : 0;
+        const newIncoming = Math.max(0, hospital.incoming_ambulances + Math.floor(Math.random() * 3) - 1);
+        
+        return {
+          ...hospital,
+          current_load: newLoad,
+          availability: newAvailability,
+          incoming_ambulances: newIncoming,
+          last_updated: new Date(),
+        };
+      }));
     }, 30000); // Update every 30 seconds
 
     return () => clearInterval(interval);

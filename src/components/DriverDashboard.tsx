@@ -19,7 +19,7 @@ import {
   Phone,
   RotateCcw
 } from 'lucide-react';
-import Map from '@/components/Map';
+import SimpleMap from '@/components/SimpleMap';
 import StatusStrip from '@/components/StatusStrip';
 import { User, Hospital as HospitalType, Trip, TrafficCondition, RouteOptimization } from '@/types';
 import { findOptimalRoute, simulateVANETCommunication } from '@/utils/routing';
@@ -386,7 +386,7 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 p-0 min-h-0">
-              <Map 
+              <SimpleMap 
                 route={route || undefined}
                 ambulanceLocation={currentLocation}
                 hospitalLocation={

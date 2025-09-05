@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import Map from '@/components/Map';
+import SimpleMap from '@/components/SimpleMap';
 import QosVisualization from '@/components/QosVisualization';
 
 interface HospitalDashboardProps {
@@ -586,7 +586,7 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
                               </div>
                             </div>
                             <div className="h-96 w-full flex flex-col">
-                              <Map
+                              <SimpleMap
                                 ambulanceLocation={ambulance.currentLocation}
                                 hospitalLocation={hospitalLocation}
                                 className="h-full w-full rounded-lg border min-h-0 flex-1"
