@@ -72,17 +72,46 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
   const { toast } = useToast();
   const { messages: vanetMessages, networkStatus } = useVanetCommunication(currentLocation);
 
-  // Simulate real-time location updates with much slower interval
+  // Simulate real-time location updates and route following
   useEffect(() => {
     const interval = setInterval(async () => {
-      setCurrentLocation(prev => [
-        prev[0] + (Math.random() - 0.5) * 0.0002, // Very small movements
-        prev[1] + (Math.random() - 0.5) * 0.0002
-      ]);
-    }, 30000); // Update every 30 seconds
+      if (currentTrip && route && route.route.length > 0) {
+        // Move ambulance along the route
+        const startTime = currentTrip.start_time.getTime();
+        const currentTime = Date.now();
+        const elapsedMinutes = (currentTime - startTime) / (1000 * 60);
+        const totalTime = route.estimated_time;
+        const progress = Math.min(elapsedMinutes / totalTime, 1);
+        
+        if (progress < 1) {
+          // Calculate position along route
+          const routeLength = route.route.length;
+          const targetIndex = Math.floor(progress * (routeLength - 1));
+          const nextIndex = Math.min(targetIndex + 1, routeLength - 1);
+          
+          if (targetIndex < routeLength) {
+            const currentWaypoint = route.route[targetIndex];
+            const nextWaypoint = route.route[nextIndex];
+            
+            // Interpolate between waypoints for smooth movement
+            const segmentProgress = (progress * (routeLength - 1)) - targetIndex;
+            const lat = currentWaypoint[1] + (nextWaypoint[1] - currentWaypoint[1]) * segmentProgress;
+            const lng = currentWaypoint[0] + (nextWaypoint[0] - currentWaypoint[0]) * segmentProgress;
+            
+            setCurrentLocation([lng, lat]);
+          }
+        }
+      } else {
+        // Random movement when no active trip
+        setCurrentLocation(prev => [
+          prev[0] + (Math.random() - 0.5) * 0.0002,
+          prev[1] + (Math.random() - 0.5) * 0.0002
+        ]);
+      }
+    }, 5000); // Update every 5 seconds for smoother movement
 
     return () => clearInterval(interval);
-  }, [currentLocation, user.id, user.ambulance_id]);
+  }, [currentTrip, route]);
 
   const startTrip = async () => {
     if (!selectedHospital) {
