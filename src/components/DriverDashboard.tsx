@@ -21,8 +21,10 @@ import {
 } from 'lucide-react';
 import SimpleMap from '@/components/SimpleMap';
 import StatusStrip from '@/components/StatusStrip';
+import NavigationDisplay from '@/components/NavigationDisplay';
 import { User, Hospital as HospitalType, Trip, TrafficCondition, RouteOptimization } from '@/types';
 import { findOptimalRoute, simulateVANETCommunication } from '@/utils/routing';
+import { generateNavigationInstructions, getNextTurnInstruction, NavigationInstruction } from '@/utils/navigationInstructions';
 import { useToast } from '@/hooks/use-toast';
 import { qosManager, Priority } from '@/services/QosManager';
 import { useVanetCommunication } from '@/hooks/useVanetCommunication';
@@ -69,9 +71,6 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
   const [route, setRoute] = useState<RouteOptimization | null>(null);
   const [trafficConditions, setTrafficConditions] = useState<TrafficCondition[]>([]);
   const [mode, setMode] = useState<'idle' | 'active' | 'emergency'>('idle');
-  const [tripProgress, setTripProgress] = useState<number>(0);
-  const [remainingDistance, setRemainingDistance] = useState<number>(0);
-  const [nextTurnInstruction, setNextTurnInstruction] = useState<string>('');
   const { toast } = useToast();
   const { messages: vanetMessages, networkStatus } = useVanetCommunication(currentLocation);
 
@@ -201,6 +200,11 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
     const hospital = mockHospitals.find(h => h.id === selectedHospital)!;
     const optimizedRoute = findOptimalRoute(currentLocation, hospital.coordinates, trafficConditions);
 
+    // Generate navigation instructions
+    const instructions = generateNavigationInstructions(optimizedRoute);
+    setNavigationInstructions(instructions);
+    setCurrentInstructionIndex(0);
+
     const newTrip: Trip = {
       id: Math.random().toString(),
       ambulance_id: user.ambulance_id!,
@@ -253,11 +257,36 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
       setCurrentTrip(null);
       setRoute(null);
       setMode('idle');
+      setNavigationInstructions([]);
+      setCurrentInstructionIndex(0);
       toast({
         title: "Trip Completed",
         description: "Patient successfully delivered to hospital.",
       });
     }
+  };
+
+  const nextTurn = () => {
+    if (navigationInstructions.length > 0 && currentInstructionIndex < navigationInstructions.length - 1) {
+      setCurrentInstructionIndex(prev => prev + 1);
+      const nextInstruction = navigationInstructions[currentInstructionIndex + 1];
+      toast({
+        title: "Next Turn",
+        description: nextInstruction.instruction,
+      });
+    } else {
+      toast({
+        title: "Navigation Complete",
+        description: "You have reached your destination.",
+      });
+    }
+  };
+
+  const getCurrentTurnInstruction = () => {
+    if (navigationInstructions.length === 0 || !route) {
+      return "Continue straight";
+    }
+    return getNextTurnInstruction(navigationInstructions, currentLocation, route);
   };
 
   const callHospital = () => {
@@ -362,6 +391,17 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
             </CardContent>
           </Card>
 
+          {/* Navigation Display */}
+          {currentTrip && (
+            <NavigationDisplay
+              currentInstruction={navigationInstructions[currentInstructionIndex] || null}
+              instructionIndex={currentInstructionIndex}
+              totalInstructions={navigationInstructions.length}
+              distance={route?.distance || null}
+              eta={currentTrip.estimated_arrival}
+            />
+          )}
+
           {/* Current Trip Status */}
           {currentTrip && (
             <Card>
@@ -450,7 +490,7 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
               route={route}
               eta={currentTrip.estimated_arrival}
               distance={route?.distance || null}
-              nextTurn={nextTurnInstruction || "Continue straight"}
+              nextTurn="Turn right in 200m"
               trafficConditions={trafficConditions}
             />
           )}
@@ -481,6 +521,10 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
           {currentTrip && (
             <div className="sticky bottom-4 bg-card/95 backdrop-blur-sm border rounded-lg p-4 shadow-lg">
               <div className="flex items-center justify-center gap-4">
+                <Button variant="outline" size="lg" className="h-12 px-6">
+                  <RotateCcw className="w-5 h-5 mr-2" />
+                  Next Turn
+                </Button>
                 <Button variant="outline" size="lg" className="h-12 px-6" onClick={callHospital}>
                   <Phone className="w-5 h-5 mr-2" />
                   Call Hospital
