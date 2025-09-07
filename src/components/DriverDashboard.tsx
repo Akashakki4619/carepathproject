@@ -481,13 +481,6 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
           {currentTrip && (
             <div className="sticky bottom-4 bg-card/95 backdrop-blur-sm border rounded-lg p-4 shadow-lg">
               <div className="flex items-center justify-center gap-4">
-                <div className="flex flex-col items-center text-center max-w-xs">
-                  <Button variant="outline" size="lg" className="h-12 px-6 mb-2">
-                    <RotateCcw className="w-5 h-5 mr-2" />
-                    Next Turn
-                  </Button>
-                  <p className="text-sm text-muted-foreground">{nextTurnInstruction}</p>
-                </div>
                 <Button variant="outline" size="lg" className="h-12 px-6" onClick={callHospital}>
                   <Phone className="w-5 h-5 mr-2" />
                   Call Hospital
