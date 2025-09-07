@@ -69,8 +69,23 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
   const [route, setRoute] = useState<RouteOptimization | null>(null);
   const [trafficConditions, setTrafficConditions] = useState<TrafficCondition[]>([]);
   const [mode, setMode] = useState<'idle' | 'active' | 'emergency'>('idle');
+  const [tripProgress, setTripProgress] = useState<number>(0);
+  const [remainingDistance, setRemainingDistance] = useState<number>(0);
   const { toast } = useToast();
   const { messages: vanetMessages, networkStatus } = useVanetCommunication(currentLocation);
+
+  // Calculate distance between two coordinates using Haversine formula
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
 
   // Simulate real-time location updates and route following
   useEffect(() => {
@@ -99,7 +114,46 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
             const lng = currentWaypoint[0] + (nextWaypoint[0] - currentWaypoint[0]) * segmentProgress;
             
             setCurrentLocation([lng, lat]);
+            
+            // Update trip progress
+            setTripProgress(progress * 100);
+            
+            // Calculate remaining distance to hospital
+            const hospital = mockHospitals.find(h => h.id === currentTrip.hospital_id);
+            if (hospital) {
+              const distanceToHospital = calculateDistance(lat, lng, hospital.coordinates[1], hospital.coordinates[0]);
+              setRemainingDistance(distanceToHospital);
+              
+              // Auto-end trip when ambulance reaches hospital (within 50 meters)
+              if (distanceToHospital < 0.05) {
+                setTimeout(() => {
+                  setCurrentTrip(null);
+                  setRoute(null);
+                  setMode('idle');
+                  setTripProgress(0);
+                  setRemainingDistance(0);
+                  toast({
+                    title: "Trip Completed",
+                    description: "Patient successfully delivered to hospital. Trip ended automatically.",
+                  });
+                }, 1000);
+              }
+            }
           }
+        } else {
+          // Trip time exceeded, auto-complete
+          setTripProgress(100);
+          setTimeout(() => {
+            setCurrentTrip(null);
+            setRoute(null);
+            setMode('idle');
+            setTripProgress(0);
+            setRemainingDistance(0);
+            toast({
+              title: "Trip Completed",
+              description: "Patient successfully delivered to hospital.",
+            });
+          }, 1000);
         }
       } else {
         // Random movement when no active trip
@@ -108,10 +162,10 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
           prev[1] + (Math.random() - 0.5) * 0.0002
         ]);
       }
-    }, 5000); // Update every 5 seconds for smoother movement
+    }, 2000); // Update every 2 seconds for faster movement
 
     return () => clearInterval(interval);
-  }, [currentTrip, route]);
+  }, [currentTrip, route, toast, calculateDistance]);
 
   const startTrip = async () => {
     if (!selectedHospital) {
@@ -300,9 +354,9 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Progress</span>
-                    <span>75%</span>
+                    <span>{Math.round(tripProgress)}%</span>
                   </div>
-                  <Progress value={75} className="h-2" />
+                  <Progress value={tripProgress} className="h-2" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -314,7 +368,9 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
                   </div>
                   <div>
                     <span className="text-muted-foreground">Distance</span>
-                    <p className="font-medium">{route?.distance.toFixed(1)} km</p>
+                    <p className="font-medium">
+                      {remainingDistance > 0 ? remainingDistance.toFixed(1) : route?.distance.toFixed(1)} km
+                    </p>
                   </div>
                 </div>
 
