@@ -28,7 +28,11 @@ export const useVanetCommunication = (ambulanceLocation?: [number, number]) => {
   });
 
   useEffect(() => {
-    if (!ambulanceLocation) return;
+    console.log('VANET hook useEffect triggered with location:', ambulanceLocation);
+    if (!ambulanceLocation) {
+      console.log('No ambulance location provided, skipping VANET setup');
+      return;
+    }
 
     // Initialize with some messages
     const initialMessages: VanetMessage[] = [
@@ -63,7 +67,9 @@ export const useVanetCommunication = (ambulanceLocation?: [number, number]) => {
     });
 
     // Update VANET messages every 3 seconds
+    console.log('Setting up VANET message interval');
     const messageInterval = setInterval(() => {
+      console.log('Generating new VANET message...');
       const messageTypes: VanetMessage['messageType'][] = [
         'emergency_alert', 'traffic_update', 'route_advisory', 'safety_warning'
       ];
@@ -116,6 +122,7 @@ export const useVanetCommunication = (ambulanceLocation?: [number, number]) => {
 
       setMessages(prev => {
         const updated = [newMessage, ...prev.slice(0, 9)]; // Keep only 10 most recent
+        console.log('Updated VANET messages count:', updated.length);
         return updated;
       });
 
@@ -128,8 +135,12 @@ export const useVanetCommunication = (ambulanceLocation?: [number, number]) => {
       }));
     }, 3000); // Update every 3 seconds
 
-    return () => clearInterval(messageInterval);
-  }, [ambulanceLocation]);
+    // Cleanup function
+    return () => {
+      console.log('Cleaning up VANET message interval');
+      clearInterval(messageInterval);
+    };
+  }, [ambulanceLocation?.[0], ambulanceLocation?.[1]]); // More specific dependency tracking
 
   return { messages, networkStatus };
 };
