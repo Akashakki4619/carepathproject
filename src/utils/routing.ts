@@ -54,6 +54,22 @@ export function findOptimalRoute(
 function generateWaypoints(start: [number, number], end: [number, number]): [number, number][] {
   const waypoints: [number, number][] = [start];
   
+  // Simple borough check to avoid false water crossings within same landmass
+  const getBorough = (coord: [number, number]) => {
+    const [lon, lat] = coord;
+    if (lon >= -74.03 && lon <= -73.92 && lat >= 40.68 && lat <= 40.88) return 'manhattan';
+    if (lon >= -74.05 && lon <= -73.84 && lat >= 40.56 && lat <= 40.73) return 'brooklyn';
+    if (lon >= -73.96 && lon <= -73.70 && lat >= 40.54 && lat <= 40.80) return 'queens';
+    if (lon >= -73.93 && lon <= -73.76 && lat >= 40.79 && lat <= 40.92) return 'bronx';
+    if (lon >= -74.25 && lon <= -74.05 && lat >= 40.48 && lat <= 40.66) return 'staten';
+    return 'other';
+  };
+  const areSameBorough = (a: [number, number], b: [number, number]) => {
+    const ba = getBorough(a);
+    const bb = getBorough(b);
+    return ba !== 'other' && ba === bb;
+  };
+
   // NYC Bridge coordinates for proper water crossing
   const nycBridges = [
     { name: 'Brooklyn Bridge', lat: 40.7061, lng: -74.0036, approaches: [[40.7077, -74.0036], [40.7045, -74.0036]] },
@@ -65,8 +81,8 @@ function generateWaypoints(start: [number, number], end: [number, number]): [num
   const [startLon, startLat] = start;
   const [endLon, endLat] = end;
   
-  // Check if we need to cross water (significant longitude difference in NYC area)
-  const needsWaterCrossing = Math.abs(startLon - endLon) > 0.015;
+  // Check if we need to cross water: only if different boroughs and sufficient east-west separation
+  const needsWaterCrossing = !areSameBorough(start, end) && Math.abs(startLon - endLon) > 0.02;
   
   if (needsWaterCrossing) {
     // Find the best bridge based on route efficiency
