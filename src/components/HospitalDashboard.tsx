@@ -26,6 +26,8 @@ import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import SimpleMap from '@/components/SimpleMap';
 import QosVisualization from '@/components/QosVisualization';
+import { RouteOptimization, TrafficCondition } from '@/types';
+import { findOptimalRoute } from '@/utils/routing';
 
 interface HospitalDashboardProps {
   user: User;
@@ -289,6 +291,22 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
 
   const handleTrackLocation = (ambulance: IncomingAmbulance) => {
     setSelectedAmbulance(ambulance);
+  };
+
+  // Generate route and traffic conditions for selected ambulance
+  const getRouteForAmbulance = (ambulance: IncomingAmbulance): { route: RouteOptimization; trafficConditions: TrafficCondition[] } => {
+    const trafficConditions: TrafficCondition[] = [
+      {
+        road_segment: `Route to ${ambulance.ambulanceNumber}`,
+        coordinates: [ambulance.currentLocation, hospitalLocation],
+        traffic_level: ambulance.trafficStatus,
+        estimated_delay: ambulance.trafficStatus === 'heavy' ? 5 : ambulance.trafficStatus === 'moderate' ? 2 : 0,
+        last_updated: new Date()
+      }
+    ];
+    
+    const route = findOptimalRoute(ambulance.currentLocation, hospitalLocation, trafficConditions);
+    return { route, trafficConditions };
   };
 
   return (
@@ -586,11 +604,18 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
                               </div>
                             </div>
                             <div className="h-96 w-full flex flex-col">
-                              <SimpleMap
-                                ambulanceLocation={ambulance.currentLocation}
-                                hospitalLocation={hospitalLocation}
-                                className="h-full w-full rounded-lg border min-h-0 flex-1"
-                              />
+                              {(() => {
+                                const { route, trafficConditions } = getRouteForAmbulance(ambulance);
+                                return (
+                                  <SimpleMap
+                                    route={route}
+                                    ambulanceLocation={ambulance.currentLocation}
+                                    hospitalLocation={hospitalLocation}
+                                    trafficConditions={trafficConditions}
+                                    className="h-full w-full rounded-lg border min-h-0 flex-1"
+                                  />
+                                );
+                              })()}
                             </div>
                             {ambulance.patientInfo && (
                               <div className="border rounded-lg p-3 bg-muted/50">
