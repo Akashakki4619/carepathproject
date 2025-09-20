@@ -87,8 +87,8 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
   });
   const { toast } = useToast();
 
-  // Hospital location (example coordinates)
-  const hospitalLocation: [number, number] = [-74.0050, 40.7120];
+  // Hospital location (Mount Sinai Hospital, Manhattan - clearly on land)
+  const hospitalLocation: [number, number] = [-73.9514, 40.7903];
 
   // Simulate incoming ambulances with complete realistic data
   useEffect(() => {
@@ -98,7 +98,7 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
         driverName: 'Michael Rodriguez',
         driverPhone: '+1 (212) 555-7842',
         ambulanceNumber: 'AMB-2401',
-        currentLocation: [-73.9857, 40.7484], // Times Square area - on land
+        currentLocation: [-73.9857, 40.7484], // Times Square area - on major street
         eta: new Date(Date.now() + 6 * 60000),
         distance: 1.8,
         trafficStatus: 'moderate',
@@ -124,7 +124,7 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
         driverName: 'Sarah Chen',
         driverPhone: '+1 (212) 555-3619',
         ambulanceNumber: 'AMB-1205',
-        currentLocation: [-73.9441, 40.8176], // Washington Heights - on land
+        currentLocation: [-73.9529, 40.7614], // Central Park East - on street
         eta: new Date(Date.now() + 12 * 60000),
         distance: 3.2,
         trafficStatus: 'light',
@@ -150,7 +150,7 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
         driverName: 'James Thompson',
         driverPhone: '+1 (212) 555-8253',
         ambulanceNumber: 'AMB-0847',
-        currentLocation: [-73.9352, 40.7306], // Lower East Side - on land
+        currentLocation: [-73.9765, 40.7489], // Midtown West - on street
         eta: new Date(Date.now() + 18 * 60000),
         distance: 4.7,
         trafficStatus: 'heavy',
@@ -176,7 +176,7 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
         driverName: 'Lisa Anderson',
         driverPhone: '+1 (212) 555-4127',
         ambulanceNumber: 'AMB-1963',
-        currentLocation: [-73.9712, 40.7831], // Upper West Side - on land
+        currentLocation: [-73.9742, 40.7505], // Hell's Kitchen - on street
         eta: new Date(Date.now() + 22 * 60000),
         distance: 5.1,
         trafficStatus: 'moderate',

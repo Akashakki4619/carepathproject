@@ -54,7 +54,46 @@ export function findOptimalRoute(
 function generateWaypoints(start: [number, number], end: [number, number]): [number, number][] {
   const waypoints: [number, number][] = [start];
   
-  // Simple borough check to avoid false water crossings within same landmass
+  // Check if both points are in Manhattan - if so, use direct street routing
+  const isManhattan = (coord: [number, number]) => {
+    const [lon, lat] = coord;
+    return lon >= -74.02 && lon <= -73.93 && lat >= 40.68 && lat <= 40.88;
+  };
+
+  const startInManhattan = isManhattan(start);
+  const endInManhattan = isManhattan(end);
+
+  // If both are in Manhattan, create a simple street-based route that stays on land
+  if (startInManhattan && endInManhattan) {
+    const [startLon, startLat] = start;
+    const [endLon, endLat] = end;
+    
+    // Create intermediate points following Manhattan's grid system
+    const midLat = startLat + (endLat - startLat) * 0.5;
+    const midLon = startLon + (endLon - startLon) * 0.5;
+    
+    // Add waypoints that follow Manhattan's street grid
+    if (Math.abs(startLat - endLat) > Math.abs(startLon - endLon)) {
+      // More north-south movement - go north/south first along avenue, then east/west along street
+      waypoints.push([startLon, midLat]);
+      if (Math.abs(startLon - endLon) > 0.005) {
+        waypoints.push([midLon, midLat]);
+      }
+      waypoints.push([endLon, midLat]);
+    } else {
+      // More east-west movement - go east/west first along street, then north/south along avenue
+      waypoints.push([midLon, startLat]);
+      if (Math.abs(startLat - endLat) > 0.005) {
+        waypoints.push([midLon, midLat]);
+      }
+      waypoints.push([midLon, endLat]);
+    }
+    
+    waypoints.push(end);
+    return waypoints;
+  }
+
+  // For inter-borough routing, use bridge logic (existing code but improved)
   const getBorough = (coord: [number, number]) => {
     const [lon, lat] = coord;
     if (lon >= -74.03 && lon <= -73.92 && lat >= 40.68 && lat <= 40.88) return 'manhattan';
@@ -64,6 +103,7 @@ function generateWaypoints(start: [number, number], end: [number, number]): [num
     if (lon >= -74.25 && lon <= -74.05 && lat >= 40.48 && lat <= 40.66) return 'staten';
     return 'other';
   };
+  
   const areSameBorough = (a: [number, number], b: [number, number]) => {
     const ba = getBorough(a);
     const bb = getBorough(b);
@@ -150,18 +190,20 @@ function generateWaypoints(start: [number, number], end: [number, number]): [num
       waypoints.push([lon, lat]);
     }
   } else {
-    // Local routing without water crossing
-    const steps = 6;
+    // Local routing without water crossing - simplified Manhattan grid routing
+    const steps = 4;
     for (let i = 1; i < steps; i++) {
       const progress = i / steps;
       
-      // L-shaped Manhattan routing
+      // L-shaped Manhattan routing - follow street grid
       let lat: number, lon: number;
-      if (progress < 0.7) {
-        lat = startLat + (endLat - startLat) * (progress * 0.2);
-        lon = startLon + (endLon - startLon) * (progress / 0.7);
+      if (progress < 0.6) {
+        // First move east/west along street
+        lat = startLat + (endLat - startLat) * 0.1;
+        lon = startLon + (endLon - startLon) * (progress / 0.6);
       } else {
-        lat = startLat + (endLat - startLat) * (0.14 + (progress - 0.7) / 0.3 * 0.86);
+        // Then move north/south along avenue
+        lat = startLat + (endLat - startLat) * ((progress - 0.6) / 0.4);
         lon = startLon + (endLon - startLon);
       }
       
