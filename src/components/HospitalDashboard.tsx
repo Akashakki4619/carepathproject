@@ -20,7 +20,8 @@ import {
   Thermometer,
   Gauge,
   Zap,
-  Eye
+  Eye,
+  FileText
 } from 'lucide-react';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -66,6 +67,8 @@ interface IncomingAmbulance {
 const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout }) => {
   const [incomingAmbulances, setIncomingAmbulances] = useState<IncomingAmbulance[]>([]);
   const [selectedAmbulance, setSelectedAmbulance] = useState<IncomingAmbulance | null>(null);
+  const [showEHR, setShowEHR] = useState(false);
+  const [selectedPatientEHR, setSelectedPatientEHR] = useState<IncomingAmbulance | null>(null);
   const [hospitalStats, setHospitalStats] = useState({
     totalBeds: 150,
     occupiedBeds: 98,
@@ -291,6 +294,11 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
 
   const handleTrackLocation = (ambulance: IncomingAmbulance) => {
     setSelectedAmbulance(ambulance);
+  };
+
+  const handleShowEHR = (ambulance: IncomingAmbulance) => {
+    setSelectedPatientEHR(ambulance);
+    setShowEHR(true);
   };
 
   // Generate route and traffic conditions for selected ambulance
@@ -570,18 +578,26 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
                       >
                         <Phone className="w-4 h-4 mr-2" />
                         Contact Driver
-                      </Button>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleTrackLocation(ambulance)}
-                          >
-                            <MapIcon className="w-4 h-4 mr-2" />
-                            Track Location
-                          </Button>
-                        </DialogTrigger>
+                       </Button>
+                       <Button 
+                         size="sm" 
+                         variant="outline"
+                         onClick={() => handleShowEHR(ambulance)}
+                       >
+                         <FileText className="h-4 w-4 mr-1" />
+                         EHR
+                       </Button>
+                       <Dialog>
+                         <DialogTrigger asChild>
+                           <Button 
+                             variant="outline" 
+                             size="sm"
+                             onClick={() => handleTrackLocation(ambulance)}
+                           >
+                             <MapIcon className="w-4 h-4 mr-2" />
+                             Track Location
+                           </Button>
+                         </DialogTrigger>
                         <DialogContent className="max-w-4xl h-[80vh]">
                           <DialogHeader>
                             <DialogTitle>
@@ -669,6 +685,217 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
           </CardContent>
         </Card>
       </div>
+
+      {/* Electronic Health Record Dialog */}
+      <Dialog open={showEHR} onOpenChange={setShowEHR}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Electronic Health Record - Patient ({selectedPatientEHR?.ambulanceNumber})
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedPatientEHR && (
+            <div className="space-y-6">
+              {/* Personal Details */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Personal Information</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Patient ID</p>
+                    <p className="text-sm">{selectedPatientEHR.ambulanceNumber}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Emergency Type</p>
+                    <p className="text-sm">{selectedPatientEHR.emergencyType}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Gender</p>
+                    <p className="text-sm">Male</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Blood Type</p>
+                    <p className="text-sm">O+</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Contact</p>
+                    <p className="text-sm">+1 (555) 123-4567</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Emergency Contact</p>
+                    <p className="text-sm">Jane Doe (Spouse) - +1 (555) 987-6543</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Current Health Status */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Current Health Status</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div className="p-3 bg-muted rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Heart className="h-4 w-4 text-red-500" />
+                        <span className="text-sm font-medium">Heart Rate</span>
+                      </div>
+                      <p className="text-lg font-semibold">{selectedPatientEHR.vitalSigns.heartRate} BPM</p>
+                      <Badge variant={selectedPatientEHR.vitalSigns.heartRate > 100 ? "destructive" : "secondary"} className="text-xs">
+                        {selectedPatientEHR.vitalSigns.heartRate > 100 ? "High" : "Normal"}
+                      </Badge>
+                    </div>
+                    <div className="p-3 bg-muted rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Gauge className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm font-medium">Blood Pressure</span>
+                      </div>
+                      <p className="text-lg font-semibold">{selectedPatientEHR.vitalSigns.bloodPressureSystolic}/{selectedPatientEHR.vitalSigns.bloodPressureDiastolic}</p>
+                      <Badge variant="secondary" className="text-xs">Normal</Badge>
+                    </div>
+                    <div className="p-3 bg-muted rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Activity className="h-4 w-4 text-green-500" />
+                        <span className="text-sm font-medium">Oxygen Level</span>
+                      </div>
+                      <p className="text-lg font-semibold">{selectedPatientEHR.vitalSigns.oxygenSaturation}%</p>
+                      <Badge variant={selectedPatientEHR.vitalSigns.oxygenSaturation < 95 ? "destructive" : "secondary"} className="text-xs">
+                        {selectedPatientEHR.vitalSigns.oxygenSaturation < 95 ? "Low" : "Normal"}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Current Condition</p>
+                    <p className="text-sm">{selectedPatientEHR.emergencyType} - {selectedPatientEHR.severity} severity</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Medical History */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Medical History</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-medium mb-2">Past Illnesses & Surgeries</h4>
+                    <ul className="text-sm space-y-1 text-muted-foreground">
+                      <li>• Appendectomy (2019)</li>
+                      <li>• Hypertension (diagnosed 2020)</li>
+                      <li>• Seasonal allergies</li>
+                    </ul>
+                  </div>
+                  <Separator />
+                  <div>
+                    <h4 className="font-medium mb-2">Current Medications</h4>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline">Lisinopril 10mg daily</Badge>
+                      <Badge variant="outline">Aspirin 81mg daily</Badge>
+                      <Badge variant="outline">Metformin 500mg twice daily</Badge>
+                    </div>
+                  </div>
+                  <Separator />
+                  <div>
+                    <h4 className="font-medium mb-2">Known Allergies</h4>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="destructive">Penicillin</Badge>
+                      <Badge variant="destructive">Shellfish</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Immunization Records */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Immunization Records</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium">COVID-19 Vaccine</p>
+                      <p className="text-sm text-muted-foreground">Pfizer-BioNTech (Booster: Sep 2023)</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Flu Vaccine</p>
+                      <p className="text-sm text-muted-foreground">Annual (Last: Oct 2023)</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Tetanus</p>
+                      <p className="text-sm text-muted-foreground">Updated: Mar 2022</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Hepatitis B</p>
+                      <p className="text-sm text-muted-foreground">Series completed: 2018</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Recent Test Results */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Recent Lab Results & Reports</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-medium mb-2">Blood Work (Last Week)</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <p className="font-medium">Glucose</p>
+                        <p className="text-muted-foreground">92 mg/dL (Normal)</p>
+                      </div>
+                      <div>
+                        <p className="font-medium">Cholesterol</p>
+                        <p className="text-muted-foreground">185 mg/dL (Normal)</p>
+                      </div>
+                      <div>
+                        <p className="font-medium">Hemoglobin</p>
+                        <p className="text-muted-foreground">14.2 g/dL (Normal)</p>
+                      </div>
+                      <div>
+                        <p className="font-medium">Creatinine</p>
+                        <p className="text-muted-foreground">0.9 mg/dL (Normal)</p>
+                      </div>
+                    </div>
+                  </div>
+                  <Separator />
+                  <div>
+                    <h4 className="font-medium mb-2">Recent Imaging</h4>
+                    <p className="text-sm text-muted-foreground">Chest X-ray (3 days ago): No acute abnormalities detected</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Treatment Plan */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Current Treatment Plan</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="font-medium">Immediate Care</h4>
+                      <p className="text-sm text-muted-foreground">{selectedPatientEHR.emergencyType} - Monitor vital signs, administer IV fluids as needed</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Follow-up Required</h4>
+                      <p className="text-sm text-muted-foreground">Cardiology consultation within 24 hours, continue blood pressure monitoring</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Doctor's Notes</h4>
+                      <p className="text-sm text-muted-foreground">Patient responsive and stable. Continue current treatment protocol. Monitor for any changes in condition.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
