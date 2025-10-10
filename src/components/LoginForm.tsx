@@ -30,6 +30,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     setIsLoading(true);
 
     try {
+      // Convert role to match database constraint
+      const dbRole = loginData.role === 'ambulance_driver' ? 'driver' : 'hospital';
+      
       const { data, error } = await supabase.auth.signUp({
         email: loginData.email,
         password: loginData.password,
@@ -38,7 +41,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
           data: {
             first_name: loginData.firstName,
             last_name: loginData.lastName,
-            role: loginData.role,
+            role: dbRole,
           },
         },
       });
