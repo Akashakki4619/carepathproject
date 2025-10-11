@@ -69,7 +69,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({ user, onLogout }) => {
         </div>
 
         <TabsContent value="dashboard" className="mt-0">
-          {user?.role === 'ambulance_driver' ? (
+          {user?.role === 'ambulance_driver' || user?.role === 'driver' ? (
             <DriverDashboard user={user} onLogout={onLogout} />
           ) : (
             <HospitalDashboard user={user} onLogout={onLogout} />

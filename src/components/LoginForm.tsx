@@ -6,32 +6,96 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Ambulance, Heart, Shield } from 'lucide-react';
 import { User } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface LoginFormProps {
   onLogin: (user: User) => void;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
+  const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({
     email: '',
     password: '',
+    firstName: '',
+    lastName: '',
     role: 'ambulance_driver' as 'ambulance_driver' | 'hospital_staff'
   });
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Mock user data for demonstration
-    const mockUser: User = {
-      id: Math.random().toString(),
-      name: loginData.role === 'ambulance_driver' ? 'John Driver' : 'Dr. Sarah Wilson',
-      email: loginData.email,
-      role: loginData.role,
-      hospital_id: loginData.role === 'hospital_staff' ? 'hospital_1' : undefined,
-      ambulance_id: loginData.role === 'ambulance_driver' ? 'amb_001' : undefined
-    };
+    setLoading(true);
 
-    onLogin(mockUser);
+    try {
+      if (isLogin) {
+        // Login
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: loginData.email,
+          password: loginData.password,
+        });
+
+        if (error) throw error;
+
+        if (data.user) {
+          // Fetch user role from user_roles table
+          const { data: roleData, error: roleError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', data.user.id)
+            .single();
+
+          if (roleError) throw roleError;
+
+          const user: User = {
+            id: data.user.id,
+            name: `${data.user.user_metadata?.first_name || ''} ${data.user.user_metadata?.last_name || ''}`.trim(),
+            email: data.user.email!,
+            role: roleData.role as 'ambulance_driver' | 'hospital_staff',
+            hospital_id: roleData.role === 'hospital_staff' ? 'hospital_1' : undefined,
+            ambulance_id: roleData.role === 'ambulance_driver' ? 'amb_001' : undefined
+          };
+
+          onLogin(user);
+          toast({
+            title: "Login successful",
+            description: "Welcome back!",
+          });
+        }
+      } else {
+        // Signup
+        const { data, error } = await supabase.auth.signUp({
+          email: loginData.email,
+          password: loginData.password,
+          options: {
+            data: {
+              first_name: loginData.firstName,
+              last_name: loginData.lastName,
+              role: loginData.role,
+            },
+            emailRedirectTo: `${window.location.origin}/`,
+          },
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Signup successful",
+          description: "Please check your email to confirm your account.",
+        });
+        setIsLogin(true);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -65,8 +129,34 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <TabsContent value="ambulance_driver" className="space-y-4">
+                {!isLogin && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="driver-first-name">First Name</Label>
+                      <Input
+                        id="driver-first-name"
+                        type="text"
+                        placeholder="John"
+                        value={loginData.firstName}
+                        onChange={(e) => setLoginData(prev => ({ ...prev, firstName: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="driver-last-name">Last Name</Label>
+                      <Input
+                        id="driver-last-name"
+                        type="text"
+                        placeholder="Driver"
+                        value={loginData.lastName}
+                        onChange={(e) => setLoginData(prev => ({ ...prev, lastName: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  </>
+                )}
                 <div className="space-y-2">
-                  <Label htmlFor="driver-email">Driver ID / Email</Label>
+                  <Label htmlFor="driver-email">Email</Label>
                   <Input
                     id="driver-email"
                     type="email"
@@ -84,16 +174,43 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
                     value={loginData.password}
                     onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
                     required
+                    minLength={6}
                   />
                 </div>
-                <Button type="submit" variant="emergency" className="w-full">
-                  Access Driver Dashboard
+                <Button type="submit" variant="emergency" className="w-full" disabled={loading}>
+                  {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Sign Up')}
                 </Button>
               </TabsContent>
 
               <TabsContent value="hospital_staff" className="space-y-4">
+                {!isLogin && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="staff-first-name">First Name</Label>
+                      <Input
+                        id="staff-first-name"
+                        type="text"
+                        placeholder="Sarah"
+                        value={loginData.firstName}
+                        onChange={(e) => setLoginData(prev => ({ ...prev, firstName: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="staff-last-name">Last Name</Label>
+                      <Input
+                        id="staff-last-name"
+                        type="text"
+                        placeholder="Wilson"
+                        value={loginData.lastName}
+                        onChange={(e) => setLoginData(prev => ({ ...prev, lastName: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  </>
+                )}
                 <div className="space-y-2">
-                  <Label htmlFor="staff-email">Staff Email</Label>
+                  <Label htmlFor="staff-email">Email</Label>
                   <Input
                     id="staff-email"
                     type="email"
@@ -111,18 +228,24 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
                     value={loginData.password}
                     onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
                     required
+                    minLength={6}
                   />
                 </div>
-                <Button type="submit" variant="medical" className="w-full">
-                  Access Hospital Dashboard
+                <Button type="submit" variant="medical" className="w-full" disabled={loading}>
+                  {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Sign Up')}
                 </Button>
               </TabsContent>
             </form>
           </Tabs>
 
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Demo Credentials:</p>
-            <p>Email: demo@system.com | Password: any</p>
+          <div className="mt-6 text-center">
+            <Button
+              variant="link"
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-sm"
+            >
+              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
+            </Button>
           </div>
         </CardContent>
       </Card>
