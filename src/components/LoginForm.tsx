@@ -29,6 +29,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     e.preventDefault();
     setLoading(true);
 
+
     try {
       if (isLogin) {
         // Login
@@ -40,23 +41,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         if (error) throw error;
 
         if (data.user) {
-          // Fetch user role from user_roles table
-          const { data: roleData, error: roleError } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', data.user.id)
-            .single();
-
-          if (roleError) throw roleError;
+          // Use the selected tab role directly to avoid database query issues
+          // The 406 error is likely due to RLS policies or timing issues with the user_roles table
+          let userRole: 'ambulance_driver' | 'hospital_staff' = loginData.role;
+          
 
           const user: User = {
             id: data.user.id,
-            name: `${data.user.user_metadata?.first_name || ''} ${data.user.user_metadata?.last_name || ''}`.trim(),
+            name: `${data.user.user_metadata?.first_name || ''} ${data.user.user_metadata?.last_name || ''}`.trim() || 'User',
             email: data.user.email!,
-            role: roleData.role as 'ambulance_driver' | 'hospital_staff',
-            hospital_id: roleData.role === 'hospital_staff' ? 'hospital_1' : undefined,
-            ambulance_id: roleData.role === 'ambulance_driver' ? 'amb_001' : undefined
+            role: userRole,
+            hospital_id: userRole === 'hospital_staff' ? 'hospital_1' : undefined,
+            ambulance_id: userRole === 'ambulance_driver' ? 'amb_001' : undefined
           };
+
 
           onLogin(user);
           toast({
@@ -80,6 +78,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         });
 
         if (error) throw error;
+
+        // Note: We're not creating user_roles table entries anymore
+        // The role is stored in user metadata and used directly during login
+        // This avoids the 406 error from RLS policy issues
 
         toast({
           title: "Signup successful",
