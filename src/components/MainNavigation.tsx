@@ -28,7 +28,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({ user, onLogout }) => {
           <div className="container mx-auto px-4">
             <TabsList className="h-16 w-full justify-start space-x-8">
               <TabsTrigger value="dashboard" className="flex items-center space-x-2">
-                {user?.role === 'ambulance_driver' ? <Ambulance className="w-4 h-4" /> : <Building2 className="w-4 h-4" />}
+                {(user?.role === 'ambulance_driver' || user?.role === 'driver') ? <Ambulance className="w-4 h-4" /> : <Building2 className="w-4 h-4" />}
                 <span>Dashboard</span>
               </TabsTrigger>
               <TabsTrigger value="patients" className="flex items-center space-x-2">
@@ -69,7 +69,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({ user, onLogout }) => {
         </div>
 
         <TabsContent value="dashboard" className="mt-0">
-          {user?.role === 'ambulance_driver' ? (
+          {user?.role === 'ambulance_driver' || user?.role === 'driver' ? (
             <DriverDashboard user={user} onLogout={onLogout} />
           ) : (
             <HospitalDashboard user={user} onLogout={onLogout} />
