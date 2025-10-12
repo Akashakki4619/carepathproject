@@ -54,161 +54,43 @@ export function findOptimalRoute(
 function generateWaypoints(start: [number, number], end: [number, number]): [number, number][] {
   const waypoints: [number, number][] = [start];
   
-  // Check if both points are in Manhattan - if so, use direct street routing
-  const isManhattan = (coord: [number, number]) => {
+  // Check if both points are in Hyderabad region
+  const isHyderabad = (coord: [number, number]) => {
     const [lon, lat] = coord;
-    return lon >= -74.02 && lon <= -73.93 && lat >= 40.68 && lat <= 40.88;
+    return lon >= 78.2 && lon <= 78.7 && lat >= 17.2 && lat <= 17.6;
   };
 
-  const startInManhattan = isManhattan(start);
-  const endInManhattan = isManhattan(end);
+  const startInHyderabad = isHyderabad(start);
+  const endInHyderabad = isHyderabad(end);
 
-  // If both are in Manhattan, create a simple street-based route that stays on land
-  if (startInManhattan && endInManhattan) {
+  // If both are in Hyderabad, create a simple direct route
+  if (startInHyderabad && endInHyderabad) {
     const [startLon, startLat] = start;
     const [endLon, endLat] = end;
     
-    // Create intermediate points following Manhattan's grid system
-    const midLat = startLat + (endLat - startLat) * 0.5;
-    const midLon = startLon + (endLon - startLon) * 0.5;
-    
-    // Add waypoints that follow Manhattan's street grid
-    if (Math.abs(startLat - endLat) > Math.abs(startLon - endLon)) {
-      // More north-south movement - go north/south first along avenue, then east/west along street
-      waypoints.push([startLon, midLat]);
-      if (Math.abs(startLon - endLon) > 0.005) {
-        waypoints.push([midLon, midLat]);
-      }
-      waypoints.push([endLon, midLat]);
-    } else {
-      // More east-west movement - go east/west first along street, then north/south along avenue
-      waypoints.push([midLon, startLat]);
-      if (Math.abs(startLat - endLat) > 0.005) {
-        waypoints.push([midLon, midLat]);
-      }
-      waypoints.push([midLon, endLat]);
+    // Create intermediate points for a smooth route
+    const steps = 5;
+    for (let i = 1; i < steps; i++) {
+      const progress = i / steps;
+      
+      // Simple linear interpolation for direct route
+      const lat = startLat + (endLat - startLat) * progress;
+      const lon = startLon + (endLon - startLon) * progress;
+      
+      waypoints.push([lon, lat]);
     }
     
     waypoints.push(end);
     return waypoints;
   }
 
-  // For inter-borough routing, use bridge logic (existing code but improved)
-  const getBorough = (coord: [number, number]) => {
-    const [lon, lat] = coord;
-    if (lon >= -74.03 && lon <= -73.92 && lat >= 40.68 && lat <= 40.88) return 'manhattan';
-    if (lon >= -74.05 && lon <= -73.84 && lat >= 40.56 && lat <= 40.73) return 'brooklyn';
-    if (lon >= -73.96 && lon <= -73.70 && lat >= 40.54 && lat <= 40.80) return 'queens';
-    if (lon >= -73.93 && lon <= -73.76 && lat >= 40.79 && lat <= 40.92) return 'bronx';
-    if (lon >= -74.25 && lon <= -74.05 && lat >= 40.48 && lat <= 40.66) return 'staten';
-    return 'other';
-  };
-  
-  const areSameBorough = (a: [number, number], b: [number, number]) => {
-    const ba = getBorough(a);
-    const bb = getBorough(b);
-    return ba !== 'other' && ba === bb;
-  };
-
-  // NYC Bridge coordinates for proper water crossing
-  const nycBridges = [
-    { name: 'Brooklyn Bridge', lat: 40.7061, lng: -74.0036, approaches: [[40.7077, -74.0036], [40.7045, -74.0036]] },
-    { name: 'Manhattan Bridge', lat: 40.7071, lng: -74.0024, approaches: [[40.7088, -74.0024], [40.7054, -74.0024]] },
-    { name: 'Williamsburg Bridge', lat: 40.7130, lng: -74.0029, approaches: [[40.7147, -74.0029], [40.7113, -74.0029]] },
-    { name: 'Queensboro Bridge', lat: 40.7561, lng: -73.9668, approaches: [[40.7578, -73.9668], [40.7544, -73.9668]] },
-  ];
-  
-  const [startLon, startLat] = start;
-  const [endLon, endLat] = end;
-  
-  // Check if we need to cross water: only if different boroughs and sufficient east-west separation
-  const needsWaterCrossing = !areSameBorough(start, end) && Math.abs(startLon - endLon) > 0.02;
-  
-  if (needsWaterCrossing) {
-    // Find the best bridge based on route efficiency
-    let bestBridge = nycBridges[0];
-    let minTotalDistance = Infinity;
-    
-    for (const bridge of nycBridges) {
-      const distToStart = calculateDistance(start, [bridge.lng, bridge.lat]);
-      const distFromBridge = calculateDistance([bridge.lng, bridge.lat], end);
-      const totalDist = distToStart + distFromBridge;
-      
-      if (totalDist < minTotalDistance) {
-        minTotalDistance = totalDist;
-        bestBridge = bridge;
-      }
-    }
-    
-    // Create route: Start -> Bridge Approach -> Bridge -> Bridge Exit -> End
-    const bridgeApproach = startLat > bestBridge.lat ? bestBridge.approaches[0] : bestBridge.approaches[1];
-    const bridgeExit = endLat > bestBridge.lat ? bestBridge.approaches[0] : bestBridge.approaches[1];
-    
-    // Route to bridge approach (follow streets)
-    const stepsTobridge = 4;
-    for (let i = 1; i <= stepsTobridge; i++) {
-      const progress = i / stepsTobridge;
-      let lat = startLat + (bridgeApproach[0] - startLat) * progress;
-      let lon = startLon + (bridgeApproach[1] - startLon) * progress;
-      
-      // Manhattan street grid routing
-      if (i < stepsTobridge) {
-        if (progress < 0.6) {
-          // Move primarily east/west first
-          lat = startLat + (bridgeApproach[0] - startLat) * (progress * 0.3);
-          lon = startLon + (bridgeApproach[1] - startLon) * (progress / 0.6);
-        } else {
-          // Then move north/south
-          lat = startLat + (bridgeApproach[0] - startLat) * (0.18 + (progress - 0.6) / 0.4 * 0.82);
-          lon = startLon + (bridgeApproach[1] - startLon);
-        }
-      }
-      
-      waypoints.push([lon, lat]);
-    }
-    
-    // Bridge crossing
-    waypoints.push([bestBridge.lng, bestBridge.lat]);
-    waypoints.push([bridgeExit[1], bridgeExit[0]]);
-    
-    // Route from bridge to destination
-    const stepsFromBridge = 4;
-    for (let i = 1; i < stepsFromBridge; i++) {
-      const progress = i / stepsFromBridge;
-      let lat = bridgeExit[0] + (endLat - bridgeExit[0]) * progress;
-      let lon = bridgeExit[1] + (endLon - bridgeExit[1]) * progress;
-      
-      // Street grid routing
-      if (progress < 0.6) {
-        lat = bridgeExit[0] + (endLat - bridgeExit[0]) * (progress * 0.3);
-        lon = bridgeExit[1] + (endLon - bridgeExit[1]) * (progress / 0.6);
-      } else {
-        lat = bridgeExit[0] + (endLat - bridgeExit[0]) * (0.18 + (progress - 0.6) / 0.4 * 0.82);
-        lon = bridgeExit[1] + (endLon - bridgeExit[1]);
-      }
-      
-      waypoints.push([lon, lat]);
-    }
-  } else {
-    // Local routing without water crossing - simplified Manhattan grid routing
-    const steps = 4;
-    for (let i = 1; i < steps; i++) {
-      const progress = i / steps;
-      
-      // L-shaped Manhattan routing - follow street grid
-      let lat: number, lon: number;
-      if (progress < 0.6) {
-        // First move east/west along street
-        lat = startLat + (endLat - startLat) * 0.1;
-        lon = startLon + (endLon - startLon) * (progress / 0.6);
-      } else {
-        // Then move north/south along avenue
-        lat = startLat + (endLat - startLat) * ((progress - 0.6) / 0.4);
-        lon = startLon + (endLon - startLon);
-      }
-      
-      waypoints.push([lon, lat]);
-    }
+  // For routes outside Hyderabad, use simple direct routing
+  const steps = 5;
+  for (let i = 1; i < steps; i++) {
+    const progress = i / steps;
+    const lat = start[1] + (end[1] - start[1]) * progress;
+    const lon = start[0] + (end[0] - start[0]) * progress;
+    waypoints.push([lon, lat]);
   }
   
   waypoints.push(end);
