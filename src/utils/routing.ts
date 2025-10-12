@@ -60,24 +60,73 @@ function generateWaypoints(start: [number, number], end: [number, number]): [num
     return lon >= 78.2 && lon <= 78.7 && lat >= 17.2 && lat <= 17.6;
   };
 
+  // Check if a point is in Hussain Sagar Lake
+  const isInHussainSagar = (coord: [number, number]) => {
+    const [lon, lat] = coord;
+    // Hussain Sagar Lake approximate boundaries
+    return lon >= 78.470 && lon <= 78.495 && lat >= 17.415 && lat <= 17.435;
+  };
+
+  // Check if a line segment crosses Hussain Sagar Lake
+  const crossesHussainSagar = (start: [number, number], end: [number, number]) => {
+    const [startLon, startLat] = start;
+    const [endLon, endLat] = end;
+    
+    // Check several points along the line
+    for (let i = 0; i <= 10; i++) {
+      const progress = i / 10;
+      const checkPoint: [number, number] = [
+        startLon + (endLon - startLon) * progress,
+        startLat + (endLat - startLat) * progress
+      ];
+      if (isInHussainSagar(checkPoint)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   const startInHyderabad = isHyderabad(start);
   const endInHyderabad = isHyderabad(end);
 
-  // If both are in Hyderabad, create a simple direct route
+  // If both are in Hyderabad, check for Hussain Sagar crossing
   if (startInHyderabad && endInHyderabad) {
     const [startLon, startLat] = start;
     const [endLon, endLat] = end;
     
-    // Create intermediate points for a smooth route
-    const steps = 5;
-    for (let i = 1; i < steps; i++) {
-      const progress = i / steps;
+    // Check if direct route crosses Hussain Sagar
+    if (crossesHussainSagar(start, end)) {
+      console.log('Route crosses Hussain Sagar - adding waypoints to go around');
       
-      // Simple linear interpolation for direct route
-      const lat = startLat + (endLat - startLat) * progress;
-      const lon = startLon + (endLon - startLon) * progress;
+      // Determine which side to go around based on start/end positions
+      const lakeCenterLon = 78.4825;
+      const lakeCenterLat = 17.425;
       
-      waypoints.push([lon, lat]);
+      // If starting from north and going south (or vice versa), go around east or west
+      const goEast = startLon < lakeCenterLon; // Go east if starting from west
+      
+      if (goEast) {
+        // Route around the east side of the lake
+        waypoints.push([78.500, startLat]); // Move east first
+        waypoints.push([78.500, lakeCenterLat]); // Move along east side
+        waypoints.push([78.500, endLat]); // Align with destination latitude
+        waypoints.push([endLon, endLat]); // Move to destination
+      } else {
+        // Route around the west side of the lake
+        waypoints.push([78.465, startLat]); // Move west first
+        waypoints.push([78.465, lakeCenterLat]); // Move along west side
+        waypoints.push([78.465, endLat]); // Align with destination latitude
+        waypoints.push([endLon, endLat]); // Move to destination
+      }
+    } else {
+      // Direct route is safe, use linear interpolation
+      const steps = 5;
+      for (let i = 1; i < steps; i++) {
+        const progress = i / steps;
+        const lat = startLat + (endLat - startLat) * progress;
+        const lon = startLon + (endLon - startLon) * progress;
+        waypoints.push([lon, lat]);
+      }
     }
     
     waypoints.push(end);
