@@ -133,7 +133,7 @@ export const useVanetCommunication = (ambulanceLocation?: [number, number]) => {
         networkLatency: Math.max(10, Math.min(100, prev.networkLatency + Math.random() * 20 - 10)),
         messageDeliveryRate: Math.max(85, Math.min(100, prev.messageDeliveryRate + Math.random() * 6 - 3)),
       }));
-    }, 3000); // Update every 3 seconds
+    }, 10000); // Update every 10 seconds
 
     // Cleanup function
     return () => {
