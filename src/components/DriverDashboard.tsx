@@ -37,7 +37,7 @@ const mockHospitals: HospitalType[] = [
     id: 'h1', 
     name: 'Apollo Hospital', 
     address: 'Jubilee Hills, Hyderabad, Telangana', 
-    coordinates: [78.4744, 17.4239], // Jubilee Hills, Hyderabad
+    coordinates: [78.4011, 17.4329], // Jubilee Hills - safely on land
     contact_number: '+91-40-2360-7777',
     capacity: 100,
     current_load: 65
@@ -46,7 +46,7 @@ const mockHospitals: HospitalType[] = [
     id: 'h2', 
     name: 'Yashoda Hospital', 
     address: 'Somajiguda, Hyderabad, Telangana', 
-    coordinates: [78.4867, 17.4126], // Somajiguda, Hyderabad
+    coordinates: [78.4537, 17.4374], // Somajiguda - safely on land
     contact_number: '+91-40-2344-4444',
     capacity: 80,
     current_load: 40
@@ -55,7 +55,7 @@ const mockHospitals: HospitalType[] = [
     id: 'h3', 
     name: 'CARE Hospital', 
     address: 'Banjara Hills, Hyderabad, Telangana', 
-    coordinates: [78.4378, 17.4435], // Banjara Hills, Hyderabad
+    coordinates: [78.4422, 17.4239], // Banjara Hills - safely on land
     contact_number: '+91-40-6165-6565',
     capacity: 120,
     current_load: 90

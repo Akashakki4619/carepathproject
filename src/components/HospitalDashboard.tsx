@@ -87,8 +87,8 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
   });
   const { toast } = useToast();
   
-  // Hospital location (Apollo Hospital, Hyderabad)
-  const hospitalLocation: [number, number] = [78.4744, 17.4239];
+  // Hospital location (Apollo Hospital, Jubilee Hills, Hyderabad - on land)
+  const hospitalLocation: [number, number] = [78.4011, 17.4329];
 
   // Simulate incoming ambulances with complete realistic data
   useEffect(() => {

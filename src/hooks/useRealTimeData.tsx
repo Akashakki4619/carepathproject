@@ -46,7 +46,7 @@ export const useRealTimeAmbulances = () => {
         driver_name: 'John Smith',
         status: 'en_route',
         location: { lat: 17.3850, lng: 78.4867 }, // Hyderabad center
-        destination: { lat: 17.4239, lng: 78.4744 }, // Apollo Hospital
+        destination: { lat: 17.4329, lng: 78.4011 }, // Apollo Hospital - on land
         patient_id: 'patient_001',
         hospital_id: 'hosp_001',
         last_updated: new Date(),
@@ -57,7 +57,7 @@ export const useRealTimeAmbulances = () => {
         driver_name: 'Sarah Johnson',
         status: 'transporting',
         location: { lat: 17.4126, lng: 78.4867 }, // Somajiguda area
-        destination: { lat: 17.4435, lng: 78.4378 }, // CARE Hospital
+        destination: { lat: 17.4239, lng: 78.4422 }, // CARE Hospital - on land
         patient_id: 'patient_002',
         hospital_id: 'hosp_002',
         last_updated: new Date(),
@@ -118,7 +118,7 @@ export const useRealTimeHospitals = () => {
       {
         id: 'hosp_001',
         name: 'Apollo Hospital',
-        location: { lat: 17.4239, lng: 78.4744 }, // Jubilee Hills
+        location: { lat: 17.4329, lng: 78.4011 }, // Jubilee Hills - on land
         capacity: 500,
         current_load: 420,
         availability: 16,
@@ -128,7 +128,7 @@ export const useRealTimeHospitals = () => {
       {
         id: 'hosp_002',
         name: 'Yashoda Hospital',
-        location: { lat: 17.4126, lng: 78.4867 }, // Somajiguda
+        location: { lat: 17.4374, lng: 78.4537 }, // Somajiguda - on land
         capacity: 300,
         current_load: 245,
         availability: 18.3,
@@ -173,7 +173,7 @@ export const useRealTimeTraffic = () => {
       {
         id: 'traffic_001',
         road_segment: 'Tank Bund Road',
-        location: { lat: 17.4239, lng: 78.4744 },
+        location: { lat: 17.4329, lng: 78.4011 }, // Near Apollo Hospital
         traffic_level: 'high',
         delay_minutes: 12,
         last_updated: new Date(),
