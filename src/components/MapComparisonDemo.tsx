@@ -9,8 +9,8 @@ import OptimizedMap from './OptimizedMap';
 import OptimizedRealTimeMap from './OptimizedRealTimeMap';
 
 const MapComparisonDemo: React.FC = () => {
-  const [ambulanceLocation, setAmbulanceLocation] = useState<[number, number]>([-74.0060, 40.7128]);
-  const [hospitalLocation] = useState<[number, number]>([-73.9851, 40.7589]);
+  const [ambulanceLocation, setAmbulanceLocation] = useState<[number, number]>([78.4867, 17.3850]); // Hyderabad center
+  const [hospitalLocation] = useState<[number, number]>([78.4744, 17.4239]); // Apollo Hospital
   const [isMoving, setIsMoving] = useState(false);
 
   const startMovement = () => {

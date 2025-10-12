@@ -35,28 +35,28 @@ interface DriverDashboardProps {
 const mockHospitals: HospitalType[] = [
   { 
     id: 'h1', 
-    name: 'NewYork-Presbyterian Hospital', 
-    address: '525 E 68th St, New York, NY', 
-    coordinates: [-73.9564, 40.7648], // Upper East Side - definitely on land
-    contact_number: '212-746-5454',
+    name: 'Apollo Hospital', 
+    address: 'Jubilee Hills, Hyderabad, Telangana', 
+    coordinates: [78.4744, 17.4239], // Jubilee Hills, Hyderabad
+    contact_number: '+91-40-2360-7777',
     capacity: 100,
     current_load: 65
   },
   { 
     id: 'h2', 
-    name: 'Mount Sinai Hospital', 
-    address: '1468 Madison Ave, New York, NY', 
-    coordinates: [-73.9514, 40.7903], // Upper East Side - on land
-    contact_number: '212-241-6500',
+    name: 'Yashoda Hospital', 
+    address: 'Somajiguda, Hyderabad, Telangana', 
+    coordinates: [78.4867, 17.4126], // Somajiguda, Hyderabad
+    contact_number: '+91-40-2344-4444',
     capacity: 80,
     current_load: 40
   },
   { 
     id: 'h3', 
-    name: 'NYU Langone Health', 
-    address: '550 1st Ave, New York, NY', 
-    coordinates: [-73.9738, 40.7392], // Midtown East - on land
-    contact_number: '212-263-7300',
+    name: 'CARE Hospital', 
+    address: 'Banjara Hills, Hyderabad, Telangana', 
+    coordinates: [78.4378, 17.4435], // Banjara Hills, Hyderabad
+    contact_number: '+91-40-6165-6565',
     capacity: 120,
     current_load: 90
   }
@@ -65,7 +65,7 @@ const mockHospitals: HospitalType[] = [
 const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => {
   const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
   const [selectedHospital, setSelectedHospital] = useState<string>('');
-  const [currentLocation, setCurrentLocation] = useState<[number, number]>([-73.9876, 40.7489]); // Times Square area - on land
+  const [currentLocation, setCurrentLocation] = useState<[number, number]>([78.4867, 17.3850]); // Hyderabad city center
   const [route, setRoute] = useState<RouteOptimization | null>(null);
   const [trafficConditions, setTrafficConditions] = useState<TrafficCondition[]>([]);
   const [mode, setMode] = useState<'idle' | 'active' | 'emergency'>('idle');

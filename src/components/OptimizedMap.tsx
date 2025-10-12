@@ -66,7 +66,7 @@ const OptimizedMap: React.FC<MapProps> = ({
     if (!isLoaded || !L || !mapContainer.current || map.current) return;
 
     try {
-      const defaultCenter: [number, number] = [40.7128, -74.0060];
+      const defaultCenter: [number, number] = [17.3850, 78.4867]; // Hyderabad, India
       const mapCenter = ambulanceLocation ? [ambulanceLocation[1], ambulanceLocation[0]] : defaultCenter;
 
       map.current = L.map(mapContainer.current).setView(mapCenter, 12);

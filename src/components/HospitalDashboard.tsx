@@ -86,9 +86,9 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
     emergencyDoctors: 6
   });
   const { toast } = useToast();
-
-  // Hospital location (Mount Sinai Hospital, Manhattan - clearly on land)
-  const hospitalLocation: [number, number] = [-73.9514, 40.7903];
+  
+  // Hospital location (Apollo Hospital, Hyderabad)
+  const hospitalLocation: [number, number] = [78.4744, 17.4239];
 
   // Simulate incoming ambulances with complete realistic data
   useEffect(() => {

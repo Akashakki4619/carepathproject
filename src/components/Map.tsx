@@ -60,8 +60,8 @@ const Map: React.FC<MapProps> = ({
     if (!isLoaded || !L || !mapContainer.current || map.current) return;
 
     try {
-      // Default center coordinates (New York City)
-      const defaultCenter: [number, number] = [40.7128, -74.0060];
+      // Default center coordinates (Hyderabad, India)
+      const defaultCenter: [number, number] = [17.3850, 78.4867];
       const mapCenter = ambulanceLocation ? [ambulanceLocation[1], ambulanceLocation[0]] : defaultCenter;
 
       // Initialize map

@@ -45,8 +45,8 @@ export const useRealTimeAmbulances = () => {
         vehicle_number: 'AMB-101',
         driver_name: 'John Smith',
         status: 'en_route',
-        location: { lat: 40.7128, lng: -74.0060 },
-        destination: { lat: 40.7589, lng: -73.9851 },
+        location: { lat: 17.3850, lng: 78.4867 }, // Hyderabad center
+        destination: { lat: 17.4239, lng: 78.4744 }, // Apollo Hospital
         patient_id: 'patient_001',
         hospital_id: 'hosp_001',
         last_updated: new Date(),
@@ -56,8 +56,8 @@ export const useRealTimeAmbulances = () => {
         vehicle_number: 'AMB-102',
         driver_name: 'Sarah Johnson',
         status: 'transporting',
-        location: { lat: 40.7282, lng: -74.0776 },
-        destination: { lat: 40.7831, lng: -73.9712 },
+        location: { lat: 17.4126, lng: 78.4867 }, // Somajiguda area
+        destination: { lat: 17.4435, lng: 78.4378 }, // CARE Hospital
         patient_id: 'patient_002',
         hospital_id: 'hosp_002',
         last_updated: new Date(),
@@ -67,7 +67,7 @@ export const useRealTimeAmbulances = () => {
         vehicle_number: 'AMB-103',
         driver_name: 'Mike Davis',
         status: 'available',
-        location: { lat: 40.6892, lng: -74.0445 },
+        location: { lat: 17.3616, lng: 78.4747 }, // Charminar area
         last_updated: new Date(),
       },
     ];
@@ -117,8 +117,8 @@ export const useRealTimeHospitals = () => {
     const mockHospitals: RealTimeHospital[] = [
       {
         id: 'hosp_001',
-        name: 'General Hospital',
-        location: { lat: 40.7589, lng: -73.9851 },
+        name: 'Apollo Hospital',
+        location: { lat: 17.4239, lng: 78.4744 }, // Jubilee Hills
         capacity: 500,
         current_load: 420,
         availability: 16,
@@ -127,8 +127,8 @@ export const useRealTimeHospitals = () => {
       },
       {
         id: 'hosp_002',
-        name: 'Memorial Medical Center',
-        location: { lat: 40.7831, lng: -73.9712 },
+        name: 'Yashoda Hospital',
+        location: { lat: 17.4126, lng: 78.4867 }, // Somajiguda
         capacity: 300,
         current_load: 245,
         availability: 18.3,
@@ -172,16 +172,16 @@ export const useRealTimeTraffic = () => {
     const mockTraffic: TrafficUpdate[] = [
       {
         id: 'traffic_001',
-        road_segment: 'Broadway & 42nd St',
-        location: { lat: 40.7589, lng: -73.9851 },
+        road_segment: 'Tank Bund Road',
+        location: { lat: 17.4239, lng: 78.4744 },
         traffic_level: 'high',
         delay_minutes: 12,
         last_updated: new Date(),
       },
       {
         id: 'traffic_002',
-        road_segment: 'FDR Drive',
-        location: { lat: 40.7282, lng: -73.9942 },
+        road_segment: 'Outer Ring Road',
+        location: { lat: 17.3850, lng: 78.4867 },
         traffic_level: 'moderate',
         delay_minutes: 5,
         last_updated: new Date(),
