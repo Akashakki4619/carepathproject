@@ -45,8 +45,8 @@ const mockHospitals: HospitalType[] = [
   { 
     id: 'h2', 
     name: 'Yashoda Hospital', 
-    address: 'Somajiguda, Hyderabad, Telangana', 
-    coordinates: [78.4537, 17.4374], // Somajiguda - safely on land
+    address: 'Gudimalkapur, Hyderabad, Telangana', 
+    coordinates: [78.4400, 17.3800], // Gudimalkapur - safely on land, south of lake
     contact_number: '+91-40-2344-4444',
     capacity: 80,
     current_load: 40

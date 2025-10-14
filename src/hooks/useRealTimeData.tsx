@@ -128,7 +128,7 @@ export const useRealTimeHospitals = () => {
       {
         id: 'hosp_002',
         name: 'Yashoda Hospital',
-        location: { lat: 17.4374, lng: 78.4537 }, // Somajiguda - on land
+        location: { lat: 17.3800, lng: 78.4400 }, // Gudimalkapur - on land, south of lake
         capacity: 300,
         current_load: 245,
         availability: 18.3,

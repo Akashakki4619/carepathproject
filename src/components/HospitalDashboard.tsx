@@ -96,9 +96,9 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
       {
         id: '1',
         driverName: 'Michael Rodriguez',
-        driverPhone: '+1 (212) 555-7842',
+        driverPhone: '+91 98765 43210',
         ambulanceNumber: 'AMB-2401',
-        currentLocation: [-73.9857, 40.7484], // Times Square area - on major street
+        currentLocation: [78.4200, 17.4100], // Banjara Hills, Hyderabad
         eta: new Date(Date.now() + 6 * 60000),
         distance: 1.8,
         trafficStatus: 'moderate',
@@ -122,9 +122,9 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
       {
         id: '2',
         driverName: 'Sarah Chen',
-        driverPhone: '+1 (212) 555-3619',
+        driverPhone: '+91 98765 43211',
         ambulanceNumber: 'AMB-1205',
-        currentLocation: [-73.9529, 40.7614], // Central Park East - on street
+        currentLocation: [78.4500, 17.4400], // Somajiguda, Hyderabad
         eta: new Date(Date.now() + 12 * 60000),
         distance: 3.2,
         trafficStatus: 'light',
@@ -148,9 +148,9 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
       {
         id: '3',
         driverName: 'James Thompson',
-        driverPhone: '+1 (212) 555-8253',
+        driverPhone: '+91 98765 43212',
         ambulanceNumber: 'AMB-0847',
-        currentLocation: [-73.9765, 40.7489], // Midtown West - on street
+        currentLocation: [78.4600, 17.4300], // Panjagutta, Hyderabad
         eta: new Date(Date.now() + 18 * 60000),
         distance: 4.7,
         trafficStatus: 'heavy',
@@ -174,9 +174,9 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
       {
         id: '4',
         driverName: 'Lisa Anderson',
-        driverPhone: '+1 (212) 555-4127',
+        driverPhone: '+91 98765 43213',
         ambulanceNumber: 'AMB-1963',
-        currentLocation: [-73.9742, 40.7505], // Hell's Kitchen - on street
+        currentLocation: [78.4350, 17.4200], // Ameerpet, Hyderabad
         eta: new Date(Date.now() + 22 * 60000),
         distance: 5.1,
         trafficStatus: 'moderate',
