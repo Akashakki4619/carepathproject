@@ -327,7 +327,7 @@ const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout })
               <Heart className="w-6 h-6 text-medical-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold">Hospital Dashboard</h1>
+              <h1 className="text-xl font-bold">Yashoda Hospital Dashboard</h1>
               <p className="text-sm text-muted-foreground">Welcome, {user.name}</p>
             </div>
           </div>
