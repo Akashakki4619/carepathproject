@@ -21,40 +21,18 @@ serve(async (req) => {
 
     console.log("AI Route Optimizer - Processing request:", { start, end, timeOfDay });
 
-    const systemPrompt = `You are an AI traffic and routing expert for emergency medical services. 
-Your role is to analyze traffic patterns, predict congestion, and recommend optimal routes for ambulances.
-Consider factors like:
-- Current traffic conditions
-- Historical traffic patterns
-- Time of day
-- Weather conditions
-- Emergency vehicle priority routes
-- Hospital proximity and capacity
+      const systemPrompt = `You are an AI routing expert for emergency ambulance services. Provide ultra-concise, critical analysis only. Maximum 3-4 short bullet points focusing on actionable insights.`;
 
-Provide actionable insights and route recommendations that can save critical minutes in emergency situations.`;
+      const userPrompt = `Emergency Route Analysis:
+Start: [${start[0]}, ${start[1]}] | End: [${end[0]}, ${end[1]}]
+Time: ${timeOfDay} | Weather: ${weatherConditions}
+Traffic: ${JSON.stringify(currentTraffic)}
+Historical: ${JSON.stringify(historicalData)}
 
-    const userPrompt = `Analyze the following emergency route scenario and provide intelligent routing recommendations:
-
-**Route Details:**
-- Start: ${JSON.stringify(start)}
-- Destination: ${JSON.stringify(end)}
-- Time: ${timeOfDay || 'Current time'}
-- Weather: ${weatherConditions || 'Normal'}
-
-**Current Traffic:**
-${JSON.stringify(currentTraffic, null, 2)}
-
-**Historical Patterns:**
-${historicalData ? JSON.stringify(historicalData, null, 2) : 'Not available'}
-
-Please provide:
-1. Traffic prediction for the next 30 minutes
-2. Recommended route adjustments based on patterns
-3. Alternative routes if primary route shows high congestion risk
-4. Estimated time savings with AI optimization
-5. Critical alerts or warnings
-
-Format your response as actionable recommendations.`;
+Provide ONLY:
+• Traffic status (1 line)
+• Key recommendation (1 line)
+• ETA impact (1 line)`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

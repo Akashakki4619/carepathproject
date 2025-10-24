@@ -33,27 +33,28 @@ const AIRoutePanel = ({ start, end, currentTraffic }: AIRoutePanelProps) => {
   };
 
   return (
-    <Card className="border-primary/20 shadow-lg">
-      <CardHeader>
+    <Card className="border-primary/20 shadow-lg bg-gradient-to-br from-primary/5 to-primary/10">
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-primary" />
-            <CardTitle>AI Route Intelligence</CardTitle>
+            <CardTitle className="text-lg">AI Route Intelligence</CardTitle>
           </div>
           <Badge variant="secondary" className="gap-1">
             <Sparkles className="h-3 w-3" />
             Smart
           </Badge>
         </div>
-        <CardDescription>
-          AI-powered traffic prediction and route optimization
+        <CardDescription className="text-xs">
+          Real-time AI analysis for optimal routing
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         <Button 
           onClick={handleOptimize}
           disabled={isLoading}
-          className="w-full gap-2"
+          className="w-full sm:w-auto gap-2"
+          size="sm"
         >
           {isLoading ? (
             <>
@@ -63,7 +64,7 @@ const AIRoutePanel = ({ start, end, currentTraffic }: AIRoutePanelProps) => {
           ) : (
             <>
               <TrendingUp className="h-4 w-4" />
-              Get AI Recommendations
+              Get AI Analysis
             </>
           )}
         </Button>
@@ -77,12 +78,12 @@ const AIRoutePanel = ({ start, end, currentTraffic }: AIRoutePanelProps) => {
         )}
 
         {aiRecommendations && (
-          <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
+          <div className="rounded-lg border border-primary/30 bg-card p-3">
             <div className="flex items-start gap-2">
-              <AlertTriangle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-              <div className="space-y-2">
-                <h4 className="font-semibold text-sm">AI Analysis Results:</h4>
-                <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+              <AlertTriangle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-xs uppercase tracking-wide text-primary mb-2">AI Analysis</h4>
+                <div className="text-sm leading-relaxed whitespace-pre-wrap">
                   {aiRecommendations}
                 </div>
               </div>
@@ -91,8 +92,8 @@ const AIRoutePanel = ({ start, end, currentTraffic }: AIRoutePanelProps) => {
         )}
 
         {!aiRecommendations && !isLoading && (
-          <div className="text-center text-sm text-muted-foreground py-4">
-            Click the button above to get AI-powered route recommendations
+          <div className="text-center text-xs text-muted-foreground py-2">
+            Click button to get AI route analysis
           </div>
         )}
       </CardContent>

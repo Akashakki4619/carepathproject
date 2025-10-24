@@ -301,7 +301,17 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
         </div>
       </header>
 
-      <div className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="p-4 space-y-6">
+        {/* AI Route Intelligence - Full Width */}
+        {selectedHospital && (
+          <AIRoutePanel 
+            start={currentLocation}
+            end={mockHospitals.find(h => h.id === selectedHospital)?.coordinates || currentLocation}
+            currentTraffic={trafficConditions}
+          />
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Panel - Trip Controls */}
         <div className="space-y-6">
           {/* Trip Initiation */}
@@ -442,14 +452,6 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
             </CardContent>
           </Card>
 
-          {/* AI Route Intelligence */}
-          {selectedHospital && (
-            <AIRoutePanel 
-              start={currentLocation}
-              end={mockHospitals.find(h => h.id === selectedHospital)?.coordinates || currentLocation}
-              currentTraffic={trafficConditions}
-            />
-          )}
         </div>
 
         {/* Center Panel - Map */}
@@ -510,6 +512,7 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
