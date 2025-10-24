@@ -26,6 +26,7 @@ import { findOptimalRoute, simulateVANETCommunication } from '@/utils/routing';
 import { useToast } from '@/hooks/use-toast';
 import { qosManager, Priority } from '@/services/QosManager';
 import { useVanetCommunication } from '@/hooks/useVanetCommunication';
+import AIRoutePanel from '@/components/AIRoutePanel';
 
 interface DriverDashboardProps {
   user: User;
@@ -440,6 +441,15 @@ const DriverDashboard: React.FC<DriverDashboardProps> = ({ user, onLogout }) => 
               </div>
             </CardContent>
           </Card>
+
+          {/* AI Route Intelligence */}
+          {selectedHospital && (
+            <AIRoutePanel 
+              start={currentLocation}
+              end={mockHospitals.find(h => h.id === selectedHospital)?.coordinates || currentLocation}
+              currentTraffic={trafficConditions}
+            />
+          )}
         </div>
 
         {/* Center Panel - Map */}

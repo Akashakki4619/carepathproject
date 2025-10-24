@@ -1,1 +1,4 @@
 project_id = "hwntunpqjoaombpvojib"
+
+[functions.ai-route-optimizer]
+verify_jwt = false
