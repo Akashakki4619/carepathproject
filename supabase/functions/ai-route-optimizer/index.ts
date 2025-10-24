@@ -21,7 +21,7 @@ serve(async (req) => {
 
     console.log("AI Route Optimizer - Processing request:", { start, end, timeOfDay });
 
-      const systemPrompt = `You are an AI routing expert for emergency ambulance services. Provide ultra-concise, critical analysis only. Maximum 3-4 short bullet points focusing on actionable insights.`;
+      const systemPrompt = `You are an AI routing expert for emergency ambulance services. Provide ultra-concise analysis with specific numbers.`;
 
       const userPrompt = `Emergency Route Analysis:
 Start: [${start[0]}, ${start[1]}] | End: [${end[0]}, ${end[1]}]
@@ -29,10 +29,12 @@ Time: ${timeOfDay} | Weather: ${weatherConditions}
 Traffic: ${JSON.stringify(currentTraffic)}
 Historical: ${JSON.stringify(historicalData)}
 
-Provide ONLY:
-• Traffic status (1 line)
-• Key recommendation (1 line)
-• ETA impact (1 line)`;
+Provide 3 points, each on a new line, each with 2-3 specific numbers:
+1. Traffic Status: [congestion level %] + [expected delay in minutes]
+2. Recommendation: [specific action] + [time savings in minutes]
+3. ETA Impact: [base time] + [delay] = [total ETA]
+
+Format each point on its own line.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
