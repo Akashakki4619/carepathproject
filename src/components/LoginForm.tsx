@@ -41,20 +41,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         if (error) throw error;
 
         if (data.user) {
-          // Use the selected tab role directly to avoid database query issues
-          // The 406 error is likely due to RLS policies or timing issues with the user_roles table
-          let userRole: 'ambulance_driver' | 'hospital_staff' = loginData.role;
-          
+          // Update user_roles table with the selected role
+          await supabase
+            .from('user_roles')
+            .upsert(
+              { user_id: data.user.id, role: loginData.role },
+              { onConflict: 'user_id,role' }
+            );
 
           const user: User = {
             id: data.user.id,
             name: `${data.user.user_metadata?.first_name || ''} ${data.user.user_metadata?.last_name || ''}`.trim() || 'User',
             email: data.user.email!,
-            role: userRole,
-            hospital_id: userRole === 'hospital_staff' ? 'hospital_1' : undefined,
-            ambulance_id: userRole === 'ambulance_driver' ? 'amb_001' : undefined
+            role: loginData.role,
+            hospital_id: loginData.role === 'hospital_staff' ? 'hospital_1' : undefined,
+            ambulance_id: loginData.role === 'ambulance_driver' ? 'amb_001' : undefined
           };
-
 
           onLogin(user);
           toast({
