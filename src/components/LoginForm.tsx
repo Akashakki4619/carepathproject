@@ -54,7 +54,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             name: `${data.user.user_metadata?.first_name || ''} ${data.user.user_metadata?.last_name || ''}`.trim() || 'User',
             email: data.user.email!,
             role: loginData.role,
-            hospital_id: loginData.role === 'hospital_staff' ? 'hospital_1' : undefined,
+            hospital_id: loginData.role === 'hospital_staff' ? 'h1' : undefined,
             ambulance_id: loginData.role === 'ambulance_driver' ? 'amb_001' : undefined
           };
 
