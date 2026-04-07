@@ -28,7 +28,7 @@ const Index = () => {
             name: `${user.user_metadata?.first_name || ''} ${user.user_metadata?.last_name || ''}`.trim() || 'User',
             email: user.email!,
             role: roleData.role as 'ambulance_driver' | 'hospital_staff',
-            hospital_id: roleData.role === 'hospital_staff' ? 'hospital_1' : undefined,
+            hospital_id: roleData.role === 'hospital_staff' ? 'h1' : undefined,
             ambulance_id: roleData.role === 'ambulance_driver' ? 'amb_001' : undefined
           };
           setCurrentUser(userData);
